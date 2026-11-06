@@ -398,6 +398,28 @@ button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .batch-warn.level-high{background:var(--amber-soft);border-color:var(--warn);color:var(--ink)}
 .batch-warn.level-max{background:var(--warn-bg);border-color:var(--warn-line);color:var(--warn)}
 .batch-warn.level-max strong{color:var(--warn)}
+/* ---- Tự chuẩn đoán xưng hô ---- */
+.pron-ctrl{margin-top:14px;border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--card2);min-width:0}
+.pron-ctrl .pron-title{font-weight:800;font-size:15px}
+.pron-ctrl .pron-sub{margin:5px 0 0;color:var(--ink2);font-size:12.5px;line-height:1.6;overflow-wrap:anywhere}
+.pron-ctrl .pron-sub strong{color:var(--ink)}
+.pron-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;align-items:center}
+.pron-actions button{min-height:44px}
+.pron-status{margin-top:10px;font-size:13px;line-height:1.6;color:var(--ink2);overflow-wrap:anywhere;min-height:18px}
+.pron-status strong{color:var(--ink)}
+.pron-table{display:flex;flex-direction:column;gap:10px;margin-top:10px;min-width:0}
+.pron-row{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card);min-width:0}
+.pron-row .pron-name{font-weight:800;font-size:14.5px;overflow-wrap:anywhere}
+.pron-row .pron-manual{font-size:10.5px;font-weight:700;background:var(--mint-soft);color:var(--mint);border-radius:999px;padding:2px 8px;white-space:nowrap;margin-left:6px;vertical-align:2px}
+.pron-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr));gap:8px;margin-top:8px;min-width:0}
+.pron-fields label{display:block;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);margin:0 0 4px}
+.pron-fields input{width:100%;min-width:0;box-sizing:border-box;font-family:inherit;font-size:13.5px;padding:9px 11px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)}
+.pron-rowbtns{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.pron-rowbtns button{min-height:44px}
+.pron-empty{font-size:13px;color:var(--ink2);line-height:1.6}
+.pron-addrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;min-width:0}
+.pron-addrow input{flex:1 1 180px;min-width:0;font-family:inherit;font-size:14px;padding:10px 14px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink)}
+.pron-addrow button{min-height:44px}
 @media (max-width:700px){.ap-grid{grid-template-columns:minmax(0,1fr)}.ap-actions button{flex:1 1 auto;justify-content:center}}
 .howto{margin-top:14px;padding:18px}
 .howto h2{margin:0 0 10px;font-size:17px}
@@ -600,6 +622,21 @@ Thank you for saying hello.</pre>
         </div>
       </div>
       <div class="batch-warn" id="batchWarn" role="alert" aria-live="polite"></div>
+    </div>
+
+    <div class="pron-ctrl" id="pronPanel" aria-label="Tự chuẩn đoán xưng hô">
+      <div class="pron-title">Tự chuẩn đoán xưng hô — AI tự đọc file, không dùng xưng hô cố định</div>
+      <p class="pron-sub">Thay vì bắt mọi nhân vật đều xưng “tôi” và gọi nhau giống hệt nhau trong mọi câu, AI sẽ <strong>đọc trước file game đang dịch</strong> — tên người nói, tên nhân vật, các đoạn thoại mẫu, quan hệ và ngữ cảnh — rồi <strong>tự chuẩn đoán xưng hô riêng cho từng nhân vật, từng cặp nhân vật</strong> (ai lớn tuổi hơn, ai nhỏ tuổi hơn, ai thân thiết, ai trang trọng). Khi dịch bằng <strong>Index Translate</strong> và <strong>Gemini Flash</strong>, bảng xưng hô này được kèm vào prompt và model phải dùng nó <strong>một cách tự nhiên, thay đổi theo ngữ cảnh</strong>, không lặp lại máy móc một xưng hô cố định trong mọi câu. Chuẩn đoán <strong>chỉ dựa trên bằng chứng có thật trong file</strong> — tên người nói, lời thoại đã có, cách nhân vật gọi nhau trong file — <strong>không đoán mò</strong>, không bịa thêm hội thoại, quan hệ hay tuổi tác: nhân vật nào trong file chưa đủ bằng chứng thì bảng ghi rõ <strong>“chưa rõ, dùng xưng hô trung tính”</strong>. <strong>Google Translate không dùng tính năng này</strong> vì Google không dùng prompt. Xưng hô điền tay là <strong>tùy chọn, không bắt buộc</strong>: anh sửa ô nào trong bảng rồi bấm <strong>Áp dụng</strong> thì ô đó được khóa theo ý anh và chuẩn đoán lại không ghi đè lên nó.</p>
+      <label class="ww-check"><input type="checkbox" id="pronEnabled" checked /> Bật tự chuẩn đoán xưng hô khi dịch bằng Index Translate &amp; Gemini Flash (mặc định bật)</label>
+      <div class="pron-actions">
+        <button type="button" class="btn-primary" id="btnDiagnosePron">AI đọc file và chuẩn đoán xưng hô</button>
+      </div>
+      <div class="pron-status" id="pronStatus">Chưa có bảng xưng hô cho game này. Anh có thể bấm nút trên để AI đọc file và chuẩn đoán, hoặc cứ dịch luôn — model sẽ tự đọc ngữ cảnh trong từng lô dịch để chọn xưng hô tự nhiên, không dùng xưng hô cố định.</div>
+      <div class="pron-table" id="pronTable" aria-label="Bảng xưng hô đã chuẩn đoán"></div>
+      <div class="pron-addrow">
+        <input type="text" id="pronNewName" placeholder="Thêm nhân vật vào bảng xưng hô (tùy chọn), ví dụ: Jiro…" aria-label="Tên nhân vật thêm vào bảng xưng hô" />
+        <button type="button" id="btnAddPronRow">Thêm dòng xưng hô</button>
+      </div>
     </div>
 
     <div class="ap-field" style="margin-top:14px;min-width:0">
@@ -1508,6 +1545,7 @@ function renderAll(){
   $("progressCard").classList.toggle("show", has);
   var ap = $("autoPanel"); if(ap) ap.classList.toggle("show", has);
   var cp = $("charNamePanel"); if(cp) cp.classList.toggle("show", has);
+  if(typeof renderPronPanel === "function") renderPronPanel();
   $("workspace").classList.toggle("show", has);
   $("filebar").classList.toggle("show", has);
   $("emptyState").style.display = has ? "none" : "";
@@ -2471,9 +2509,288 @@ function effectivePrompt(){
      bộ, không nhắc mã giữ chỗ. Google Translate không dùng prompt nên không bị ảnh hưởng. */
   if(raw.indexOf("tên nhân vật") === -1) raw += "\n- Giữ nguyên y hệt tên nhân vật đã ở dạng chữ Latin hoặc đã ở dạng ngôn ngữ đích, không dịch tên riêng dạng đó: giữ nguyên đúng như trong bản gốc, không dịch sang nghĩa đen, kể cả khi tên đó cũng là một từ thông thường.";
   if(raw.indexOf("không để lại bất kỳ chữ tiếng Nhật") === -1) raw += "\n- Dịch toàn bộ sang ngôn ngữ đích, không để lại bất kỳ chữ tiếng Nhật, Trung, Hàn nào trong bản dịch: kể cả tên nhân vật viết bằng chữ Nhật, Trung, Hàn cũng phải dịch hoặc phiên âm sang ngôn ngữ đích; không dịch một nửa ngôn ngữ đích một nửa chữ Nhật, không để nguyên chữ Nhật, Trung, Hàn trong bản dịch.";
+  /* Tự chuẩn đoán xưng hô: khi tính năng đang bật, prompt gửi cho Index Translate / Gemini
+     luôn kèm bảng xưng hô đã chuẩn đoán (hoặc yêu cầu tự đọc ngữ cảnh nếu chưa có bảng).
+     Google Translate không hề gọi effectivePrompt() nên không bị ảnh hưởng. */
+  if(typeof pronounPromptBlock === "function") raw += pronounPromptBlock();
   var src=$("atSrc").value==="auto" ? "ngôn ngữ gốc (tự động nhận diện)" : langName($("atSrc").value);
   return raw.split("{src}").join(src).split("{tgt}").join(langName($("atTgt").value));
 }
+
+/* ----- TỰ CHUẨN ĐOÁN XƯNG HÔ (chỉ Index Translate & Gemini Flash) -----
+   AI đọc trước một phần file đang dịch (tên người nói, tên nhân vật, thoại mẫu kèm người
+   nói, hồ sơ nhân vật) rồi chuẩn đoán xưng hô riêng cho từng nhân vật / từng cặp nhân vật.
+   NGUYÊN TẮC BẰNG CHỨNG: chỉ dùng bằng chứng có thật trong file — KHÔNG đoán mò, không bịa
+   thêm hội thoại, quan hệ, tuổi tác, giới tính, tính cách không có trong file; file đã có
+   sẵn cách xưng hô nào thì dùng đúng cách đó; không đủ bằng chứng thì ghi “Chưa rõ” và dùng
+   xưng hô trung tính (tôi / bạn) thay vì đoán. Bảng lưu theo TỪNG TÊN GAME (cùng khóa phần
+   game với tên nhân vật). Dòng nào anh đã sửa tay và bấm Áp dụng (manual) thì chuẩn đoán lại
+   KHÔNG ghi đè. Khi dịch, pronounPromptBlock() chèn bảng vào effectivePrompt() — Google
+   Translate không gọi effectivePrompt() nên không dùng bảng này. */
+var PRON_PREFIX = "dtvn_pronouns_rpg_v1::";
+var PRON_ENABLED_KEY = "dtvn_pronouns_enabled_rpg_v1";
+var pronData = { rows: [] };   /* [{name, self, pairs, reason, manual}] — pairs dạng “Mila: em; Jiro: anh” */
+var pronGamePart = null;
+function pronEnabledStored(){ try{ return localStorage.getItem(PRON_ENABLED_KEY) !== "0"; }catch(e){ return true; } }
+function pronEnabled(){
+  var cb = $("pronEnabled");
+  if(cb) return !!cb.checked;
+  return pronEnabledStored();
+}
+function loadPronData(part){
+  var d = { rows: [] };
+  try{
+    var v = JSON.parse(localStorage.getItem(PRON_PREFIX + part) || "null");
+    if(v && Array.isArray(v.rows)){
+      v.rows.forEach(function(r){
+        if(r && typeof r.name === "string" && r.name.trim()){
+          d.rows.push({
+            name: r.name.trim(),
+            self: typeof r.self === "string" ? r.self : "",
+            pairs: typeof r.pairs === "string" ? r.pairs : "",
+            reason: typeof r.reason === "string" ? r.reason : "",
+            manual: !!r.manual
+          });
+        }
+      });
+    }
+  }catch(e){}
+  return d;
+}
+function ensurePronLoaded(){
+  if(typeof charNameGamePart !== "function") return;
+  var part = charNameGamePart();
+  if(part !== pronGamePart){ pronData = loadPronData(part); pronGamePart = part; }
+}
+function savePronData(){
+  ensurePronLoaded();
+  try{ localStorage.setItem(PRON_PREFIX + pronGamePart, JSON.stringify(pronData)); }catch(e){}
+}
+function pronounRows(){ ensurePronLoaded(); return pronData.rows || []; }
+function pronStatus(msg){ var el = $("pronStatus"); if(el) el.innerHTML = msg || ""; }
+/* Phần đọc trước gửi cho model chuẩn đoán: tên nhân vật (+ tên đã dịch nếu có), tên người
+   nói, thoại mẫu KÈM người nói gần nhất trong cùng file, vài dòng hồ sơ / mô tả nhân vật.
+   Chỉ lấy ĐÚNG những gì có trong file — không thêm bất kỳ nội dung nào khác. */
+function buildPronounContextText(){
+  var out = [];
+  var names = (typeof allCharNameEntries === "function") ? allCharNameEntries() : [];
+  if(names.length){
+    out.push("TÊN NHÂN VẬT CÓ TRONG FILE:");
+    names.forEach(function(x){
+      var tr = (typeof getCharNameTranslation === "function") ? getCharNameTranslation(x.name) : "";
+      out.push("- " + x.name + (tr && tr !== x.name ? " (tên đã dịch: " + tr + ")" : ""));
+    });
+  }
+  var speakers = {}, speakerList = [];
+  var samples = [], profiles = [];
+  (typeof files !== "undefined" ? files : []).forEach(function(f){
+    var lastSpeaker = "";
+    (f.entries || []).forEach(function(e){
+      if(!e || typeof e.orig !== "string") return;
+      if(e.type === "speaker"){
+        lastSpeaker = e.orig.trim();
+        if(lastSpeaker && !speakers[lastSpeaker.toLowerCase()]){ speakers[lastSpeaker.toLowerCase()] = 1; speakerList.push(lastSpeaker); }
+      } else if(e.type === "401"){
+        if(samples.length < 60) samples.push((lastSpeaker ? "[" + lastSpeaker + "] " : "") + e.orig.replace(/\s+/g, " ").trim());
+      } else if((e.type === "desc" || e.typeLabel === "Hồ sơ") && profiles.length < 8){
+        profiles.push(e.orig.replace(/\s+/g, " ").trim());
+      }
+    });
+  });
+  if(speakerList.length) out.push("\nTÊN NGƯỜI NÓI XUẤT HIỆN TRONG FILE:\n" + speakerList.map(function(s){ return "- " + s; }).join("\n"));
+  if(profiles.length) out.push("\nHỒ SƠ / MÔ TẢ NHÂN VẬT CÓ TRONG FILE:\n" + profiles.map(function(s){ return "- " + s; }).join("\n"));
+  if(samples.length) out.push("\nTHOẠI MẪU TRONG FILE (dòng có [Tên] là tên người nói của dòng đó):\n" + samples.join("\n"));
+  var text = out.join("\n");
+  return text.length > 7000 ? text.slice(0, 7000) : text;
+}
+var PRON_NEUTRAL_REASON = "Chưa rõ: trong file chưa đủ bằng chứng về quan hệ / tuổi tác của nhân vật này, dùng xưng hô trung tính.";
+/* Chuẩn hoá kết quả model trả về thành bảng dòng. Hàng nào thiếu xưng hô hoặc thiếu lý do
+   thì KHÔNG đoán thay: tự xưng để “tôi”, gọi người kia để “bạn” và lý do ghi rõ “Chưa rõ”. */
+function parsePronounDiagnosis(raw){
+  var t = cleanAiOut(String(raw || ""));
+  var rows = null;
+  var a = t.indexOf("["), b = t.lastIndexOf("]");
+  if(a !== -1 && b > a){
+    try{ var v = JSON.parse(t.slice(a, b + 1)); if(Array.isArray(v)) rows = v; }catch(e){}
+  }
+  if(!rows){
+    var a2 = t.indexOf("{"), b2 = t.lastIndexOf("}");
+    if(a2 !== -1 && b2 > a2){
+      try{ var o = JSON.parse(t.slice(a2, b2 + 1)); if(o && Array.isArray(o.rows)) rows = o.rows; }catch(e){}
+    }
+  }
+  if(!rows) return [];
+  var out = [];
+  rows.forEach(function(r){
+    if(!r || typeof r !== "object") return;
+    var name = String(r.name || "").trim();
+    if(!name) return;
+    var self = String(r.self || "").trim();
+    var pairs = "";
+    if(typeof r.pairs === "string") pairs = r.pairs.trim();
+    else if(Array.isArray(r.pairs)){
+      pairs = r.pairs.map(function(p){
+        if(!p || typeof p !== "object") return "";
+        return String(p.to || "").trim() + ": " + String(p.call || "").trim();
+      }).filter(function(s){ return s.length > 2; }).join("; ");
+    }
+    var reason = String(r.reason || "").trim();
+    if(!self){ self = "tôi"; if(!pairs) pairs = "bạn"; if(reason.indexOf("Chưa rõ") !== 0) reason = PRON_NEUTRAL_REASON; }
+    if(!reason) reason = PRON_NEUTRAL_REASON;
+    out.push({ name: name, self: self, pairs: pairs, reason: reason, manual: false });
+  });
+  return out;
+}
+function pronDiagnoseInstruction(){
+  var tgt = langName($("atTgt").value);
+  return "Bạn là trợ lý phân tích xưng hô cho bản dịch game sang " + tgt + ". Dưới đây là một phần nội dung có thật trích từ file game đang dịch (tên nhân vật, tên người nói, hồ sơ và thoại mẫu).\n"
+    + "NHIỆM VỤ: chuẩn đoán xưng hô tiếng Việt phù hợp cho từng nhân vật và từng cặp nhân vật dựa trên phần nội dung đó.\n"
+    + "QUY TẮC BẰNG CHỨNG — BẮT BUỘC: Chỉ dùng bằng chứng trong file, không đoán mò, không bịa thêm hội thoại. Không được tự suy ra hay bịa ra quan hệ, tuổi tác, giới tính, tính cách của nhân vật nếu trong phần nội dung được cung cấp không có bằng chứng. Nếu trong file các nhân vật đã có sẵn cách gọi nhau thì dùng đúng cách đó. Nếu một nhân vật hay một cặp nhân vật KHÔNG đủ bằng chứng để biết quan hệ / tuổi tác, hãy ghi \"self\": \"tôi\", \"pairs\": \"bạn\" và \"reason\" bắt đầu bằng \"Chưa rõ:\" rồi nói rõ là chưa đủ bằng chứng nên dùng xưng hô trung tính — tuyệt đối không đoán mò cho trường hợp đó.\n"
+    + "Mỗi lý do phải ngắn và chỉ nêu bằng chứng thấy được trong file (ví dụ ai gọi ai là gì trong thoại mẫu), không nêu điều không có trong file.\n"
+    + "CHỈ trả về đúng một mảng JSON, không thêm chữ nào ngoài JSON, theo đúng mẫu:\n"
+    + "[{\"name\":\"Tên nhân vật\",\"self\":\"xưng hô khi tự xưng, ví dụ tôi / mình / anh / em / chị / tao\",\"pairs\":\"Tên người kia: xưng hô khi gọi người đó; Tên khác: xưng hô\",\"reason\":\"lý do ngắn dựa trên bằng chứng trong file\"}]";
+}
+async function diagnosePronouns(){
+  if(typeof files === "undefined" || !files.length){ toast("Anh mở file .json của game trước rồi mới chuẩn đoán xưng hô được nhé."); return; }
+  var provider = $("atProvider").value;
+  var noteProvider = "";
+  if(provider === "google"){ provider = "index"; noteProvider = "Google Translate không dùng prompt nên phần chuẩn đoán này dùng Index Translate (miễn phí). "; }
+  if(provider === "gemini" && !loadKeys().length){ pronStatus("Chưa có API key Gemini nào — anh thêm key Gemini ở khung phía trên, hoặc chọn Index Translate để chuẩn đoán."); return; }
+  var sample = buildPronounContextText();
+  if(!sample.trim()){ pronStatus("File đang mở chưa có tên nhân vật hay thoại nào để AI đọc — chưa chuẩn đoán được."); return; }
+  var btn = $("btnDiagnosePron"); if(btn) btn.disabled = true;
+  pronStatus(noteProvider + "Đang gửi một phần nội dung file cho " + (provider === "gemini" ? "Gemini Flash" : "Index Translate") + " đọc và chuẩn đoán xưng hô…");
+  var raw = "";
+  promptOverrideText = pronDiagnoseInstruction();
+  try{
+    raw = provider === "gemini" ? await translateGemini(sample) : await translateIndex(sample);
+  }catch(err){
+    pronStatus("Chuẩn đoán xưng hô bị lỗi: " + esc(err && err.message ? err.message : String(err)) + " — anh thử lại, hoặc kiểm tra key / kết nối.");
+    if(btn) btn.disabled = false;
+    return;
+  }finally{ promptOverrideText = null; }
+  var rows = parsePronounDiagnosis(raw);
+  if(!rows.length){
+    pronStatus("Model không trả về bảng xưng hô đọc được — anh bấm lại nút chuẩn đoán để thử lần nữa. Bảng cũ (nếu có) vẫn được giữ nguyên.");
+    if(btn) btn.disabled = false;
+    return;
+  }
+  /* Gộp kết quả: dòng anh đã sửa tay (manual) được GIỮ NGUYÊN, chuẩn đoán mới không ghi đè;
+     dòng trùng tên chưa sửa tay thì lấy kết quả chuẩn đoán mới nhất. */
+  ensurePronLoaded();
+  var manualByKey = {};
+  pronData.rows.forEach(function(r){ if(r.manual) manualByKey[r.name.toLowerCase()] = r; });
+  var merged = [], used = {};
+  rows.forEach(function(r){
+    var k = r.name.toLowerCase();
+    if(manualByKey[k]){ merged.push(manualByKey[k]); used[k] = 1; }
+    else if(!used[k]){ merged.push(r); used[k] = 1; }
+  });
+  pronData.rows.forEach(function(r){ if(r.manual && !used[r.name.toLowerCase()]) merged.push(r); });
+  pronData.rows = merged;
+  savePronData();
+  renderPronPanel();
+  var neutral = merged.filter(function(r){ return String(r.reason || "").indexOf("Chưa rõ") === 0; }).length;
+  pronStatus("Đã chuẩn đoán xong bảng xưng hô cho <strong>" + merged.length + " nhân vật</strong> từ nội dung file" + (neutral ? ", trong đó <strong>" + neutral + " nhân vật chưa rõ</strong> quan hệ trong file nên đang dùng xưng hô trung tính" : "") + ". Anh xem lại bảng bên dưới, sửa ô nào cần rồi bấm <strong>Áp dụng</strong> ở dòng đó — xưng hô đã sửa áp dụng cho tất cả các dòng có nhân vật đó và chuẩn đoán lại không ghi đè lên nó.");
+  if(btn) btn.disabled = false;
+}
+/* Khối xưng hô chèn vào prompt dịch của Index Translate / Gemini (qua effectivePrompt).
+   Tắt tính năng -> rỗng (prompt không kèm gì). Chưa có bảng -> yêu cầu model tự đọc ngữ
+   cảnh trong chính lô dịch, vẫn kèm câu cấm đoán mò. Có bảng -> kèm bảng + cách dùng. */
+function pronounPromptBlock(){
+  if(!pronEnabled()) return "";
+  var head = "\n- Xưng hô: chỉ dùng bằng chứng trong file, không đoán mò, không bịa thêm hội thoại, quan hệ hay tuổi tác không có trong văn bản.";
+  var rows = pronounRows();
+  if(!rows.length){
+    return head + " Hãy tự đọc ngữ cảnh trong chính các dòng của lô dịch này (tên người nói, cách các nhân vật gọi nhau ngay trong câu) để chọn xưng hô tiếng Việt tự nhiên, riêng cho từng nhân vật và từng cặp nhân vật theo quan hệ thấy được trong văn bản; nhân vật nào chưa rõ quan hệ thì dùng xưng hô trung tính (tôi / bạn). Không bắt mọi nhân vật đều xưng giống nhau và không lặp lại một xưng hô cố định trong mọi câu — nhiều câu không cần nhắc lại chủ ngữ / xưng hô.";
+  }
+  var lines = rows.slice(0, 40).map(function(r){
+    return "  + " + r.name + ": tự xưng là “" + (r.self || "tôi") + "”" + (r.pairs ? "; gọi người khác — " + r.pairs : "") + (r.reason ? " (lý do: " + r.reason + ")" : "");
+  });
+  return head + " Áp dụng BẢNG XƯNG HÔ đã chuẩn đoán từ chính file game này cho các nhân vật liên quan trong lô dịch:\n" + lines.join("\n") + "\n  Hãy dùng các xưng hô trong bảng một cách tự nhiên, thay đổi theo ngữ cảnh, không lặp lại máy móc một xưng hô cố định trong mọi câu, không bắt mọi nhân vật đều xưng giống nhau; khi câu không cần nhắc chủ ngữ thì không chèn xưng hô thừa.";
+}
+function renderPronPanel(){
+  if(typeof pronData === "undefined") return;
+  var box = $("pronTable"); if(!box) return;
+  ensurePronLoaded();
+  var cb = $("pronEnabled");
+  if(cb && document.activeElement !== cb) cb.checked = pronEnabledStored();
+  box.innerHTML = "";
+  var rows = pronData.rows;
+  if(!rows.length){
+    box.innerHTML = '<div class="pron-empty">Chưa có bảng xưng hô cho game này — bấm “AI đọc file và chuẩn đoán xưng hô” ở trên, hoặc thêm dòng xưng hô tay ở ô dưới (tùy chọn, không bắt buộc).</div>';
+    return;
+  }
+  rows.forEach(function(r, idx){
+    var card = document.createElement("div"); card.className = "pron-row";
+    var head = document.createElement("div");
+    var nm = document.createElement("span"); nm.className = "pron-name"; nm.textContent = r.name;
+    head.appendChild(nm);
+    if(r.manual){
+      var chip = document.createElement("span"); chip.className = "pron-manual"; chip.textContent = "đã sửa tay — khóa";
+      head.appendChild(chip);
+    }
+    card.appendChild(head);
+    var fields = document.createElement("div"); fields.className = "pron-fields";
+    function mkField(label, key, ph){
+      var wrap = document.createElement("div");
+      var lb = document.createElement("label"); lb.textContent = label;
+      var inp = document.createElement("input"); inp.type = "text"; inp.value = r[key] || ""; inp.placeholder = ph;
+      inp.setAttribute("data-pron-field", key);
+      wrap.appendChild(lb); wrap.appendChild(inp);
+      fields.appendChild(wrap);
+      return inp;
+    }
+    var inSelf = mkField("Tự xưng", "self", "ví dụ: anh");
+    var inPairs = mkField("Gọi người kia", "pairs", "ví dụ: Mila: em; Jiro: anh");
+    var inReason = mkField("Lý do", "reason", "lý do ngắn từ bằng chứng trong file");
+    card.appendChild(fields);
+    var btns = document.createElement("div"); btns.className = "pron-rowbtns";
+    var apply = document.createElement("button"); apply.type = "button"; apply.className = "btn-primary"; apply.textContent = "Áp dụng";
+    apply.addEventListener("click", function(){
+      r.self = inSelf.value.trim();
+      r.pairs = inPairs.value.trim();
+      r.reason = inReason.value.trim();
+      r.manual = true;
+      savePronData();
+      renderPronPanel();
+      pronStatus("Đã áp dụng xưng hô của <strong>" + esc(r.name) + "</strong> (tự xưng “" + esc(r.self || "tôi") + "”" + (r.pairs ? ", gọi: " + esc(r.pairs) : "") + ") cho <strong>tất cả các dòng có " + esc(r.name) + "</strong> — từ giờ mọi lô dịch có nhân vật này đều dùng đúng xưng hô này, và chuẩn đoán lại không ghi đè lên dòng anh đã sửa.");
+      toast("Đã áp dụng xưng hô của " + r.name + " cho tất cả các dòng có nhân vật này.");
+    });
+    var del = document.createElement("button"); del.type = "button"; del.textContent = "Xóa dòng";
+    del.addEventListener("click", function(){
+      pronData.rows.splice(idx, 1);
+      savePronData();
+      renderPronPanel();
+      pronStatus("Đã xóa dòng xưng hô của <strong>" + esc(r.name) + "</strong> khỏi bảng của game này.");
+    });
+    btns.appendChild(apply); btns.appendChild(del);
+    card.appendChild(btns);
+    box.appendChild(card);
+  });
+}
+if($("btnDiagnosePron")) $("btnDiagnosePron").addEventListener("click", function(){ diagnosePronouns(); });
+if($("pronEnabled")){
+  $("pronEnabled").checked = pronEnabledStored();
+  $("pronEnabled").addEventListener("change", function(){
+    try{ localStorage.setItem(PRON_ENABLED_KEY, $("pronEnabled").checked ? "1" : "0"); }catch(e){}
+    pronStatus($("pronEnabled").checked
+      ? "Đã <strong>bật</strong> tự chuẩn đoán xưng hô — prompt dịch của Index Translate &amp; Gemini Flash sẽ kèm bảng xưng hô (hoặc yêu cầu model tự đọc ngữ cảnh trong lô nếu chưa có bảng)."
+      : "Đã <strong>tắt</strong> tự chuẩn đoán xưng hô — prompt dịch sẽ không kèm bảng xưng hô nữa. Bảng đã lưu vẫn còn đây, bật lại là dùng tiếp.");
+  });
+}
+if($("btnAddPronRow")) $("btnAddPronRow").addEventListener("click", function(){
+  var nm = $("pronNewName").value.trim();
+  if(!nm){ toast("Anh nhập tên nhân vật vào ô thêm dòng xưng hô trước nhé."); return; }
+  ensurePronLoaded();
+  var exists = pronData.rows.some(function(r){ return r.name.toLowerCase() === nm.toLowerCase(); });
+  if(exists){ toast("Bảng xưng hô đã có nhân vật “" + nm + "” rồi — anh sửa ngay dòng đó rồi bấm Áp dụng nhé."); return; }
+  pronData.rows.push({ name: nm, self: "", pairs: "", reason: "", manual: false });
+  savePronData();
+  $("pronNewName").value = "";
+  renderPronPanel();
+  pronStatus("Đã thêm dòng xưng hô cho <strong>" + esc(nm) + "</strong> — anh điền xưng hô vào các ô của dòng đó rồi bấm <strong>Áp dụng</strong>.");
+});
 
 /* ----- API key Gemini: chỉ lưu trong localStorage ----- */
 var KEYS_KEY="dtvn_gemini_keys_rpg_v1";

@@ -35,6 +35,7 @@ Xem `README.md`, các phần:
 - Thoại xuống dòng và Word wrap (chỉ bản RPG Maker)
 - Tên nhân vật không dịch (chỉ bản RPG Maker)
 - Dịch tên — khóa tên chuẩn (chỉ bản RPG Maker)
+- Tự chuẩn đoán xưng hô (chỉ bản RPG Maker)
 - Tên tiếng Nhật phải dịch hết, không dịch nửa vời (chỉ bản RPG Maker)
 - Dịch sai ngôn ngữ đích
 - Nhận biết tên game theo dự án (chỉ bản RPG Maker)
@@ -62,6 +63,20 @@ Phần **“Dịch tên”** trong khu tên nhân vật hiện cả tên gốc v
 Bấm **Áp dụng** một lần thì tên đã sửa được lưu theo game và áp dụng ngay cho tất cả các dòng có tên đó, cập nhật danh sách dòng và Khung dịch, dùng cho các lần dịch sau. Việc sửa tên thay đúng tên, đúng chính tả và viết hoa, không sửa nhầm một phần của từ khác — sửa “Jiro” không làm hỏng “JirouSensei” — và không làm mất mã game hay tag trong câu. Tên đã có tên dịch thì không còn nút dịch lại; muốn đổi tên, sửa ở ô tên đã dịch rồi bấm **Áp dụng**.
 
 Tên nhân vật tiếng Nhật đã được dịch hoặc phiên âm đúng sang chữ Latin thì không bị gắn cờ Dịch lỗi oan: “治郎” thành “Jiro” và “美琴” thành “Mikoto” đều không bị gắn cờ. Lỗi thật như “Nội thất錢湯” (còn “錢湯”) và “Đòn đánh/Physikal” vẫn bị gắn cờ như trước.
+
+## Tự chuẩn đoán xưng hô
+
+Xưng hô điền cố định rồi lặp đi lặp lại trong mọi câu nghe không tự nhiên, nên AI tự đọc file để chuẩn đoán xưng hô thay vì điền cố định — chỉ dùng cho **Index Translate và Gemini Flash**, không dùng cho Google Translate vì Google không dùng prompt.
+
+Trong panel Dịch tự động có khu **“Tự chuẩn đoán xưng hô”**: công tắc bật/tắt (mặc định bật) và nút **“AI đọc file và chuẩn đoán xưng hô”**. Khi bấm, tool gửi cho model phần đọc trước thật của file đang dịch — tên nhân vật kèm tên đã dịch, tên người nói, thoại mẫu kèm người nói, hồ sơ nhân vật — và nhận về bảng xưng hô hiện ngay trong tool: mỗi dòng có tên nhân vật, ô Tự xưng, ô Gọi người kia theo từng cặp nhân vật, ô Lý do, nút Áp dụng và Xóa dòng. Bảng lưu riêng theo từng tên game, giống danh sách tên nhân vật.
+
+Khi dịch bằng Index Translate và Gemini Flash mà tính năng đang bật, prompt luôn kèm bảng xưng hô của game và yêu cầu dùng xưng hô tự nhiên theo ngữ cảnh, không lặp một xưng hô cố định trong mọi câu; chưa có bảng thì prompt yêu cầu model tự đọc ngữ cảnh trong lô dịch.
+
+**Không đoán mò:** cả prompt chuẩn đoán và prompt dịch đều bắt buộc chỉ dùng bằng chứng có thật trong file, không đoán mò, không bịa thêm hội thoại, quan hệ hay tuổi tác. Nhân vật thiếu bằng chứng thì tự xưng “tôi”, gọi “bạn” và lý do ghi rõ **“Chưa rõ: … dùng xưng hô trung tính”**.
+
+Xưng hô điền tay là tùy chọn: sửa một dòng trong bảng rồi bấm Áp dụng thì dòng đó khóa theo ý người dùng, áp dụng cho mọi lô có nhân vật đó, và chuẩn đoán lại sau đó không ghi đè dòng đã sửa tay.
+
+Ví dụ: Jiro lớn tuổi hơn Mila nên xưng “anh”, gọi Mila là “em”; Mila xưng “em”, gọi Jiro là “anh” — hai nhân vật không dùng chung một xưng hô cố định.
 
 ## Tên tiếng Nhật phải dịch hết, không dịch nửa vời
 
