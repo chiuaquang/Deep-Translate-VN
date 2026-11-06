@@ -23,6 +23,8 @@ Xem phần Dịch tự động bằng Model trong `README.md`.
 
 Riêng bản RPG Maker có thêm **Số luồng song song** cho Index Translate và Gemini Flash, mặc định 3, từ 1 đến 5. Google Translate dịch tuần tự.
 
+**Lọc theo ngôn ngữ gốc khi dịch tự động:** ngôn ngữ gốc là Tự động nhận diện thì Dịch tất cả / Dịch hàng loạt dịch tất cả các dòng; ngôn ngữ gốc được chọn cụ thể, ví dụ Tiếng Anh, thì chỉ dịch các dòng đúng ngôn ngữ gốc đó và bỏ qua các dòng tiếng Nhật / Trung, có báo số dòng đã bỏ qua. Dịch tay từng dòng không bị ảnh hưởng. Dòng viết toàn bằng chữ Hán khớp cả tiếng Nhật lẫn tiếng Trung vì không phân biệt được bằng chữ viết.
+
 ## Giữ nguyên mã, phát hiện Dịch lỗi, thoại xuống dòng, Word wrap, tên game
 
 Xem `README.md`, các phần:
@@ -32,6 +34,7 @@ Xem `README.md`, các phần:
 - Cảnh cáo khi xuất file
 - Thoại xuống dòng và Word wrap (chỉ bản RPG Maker)
 - Tên nhân vật không dịch (chỉ bản RPG Maker)
+- Dịch tên — khóa tên chuẩn (chỉ bản RPG Maker)
 - Tên tiếng Nhật phải dịch hết, không dịch nửa vời (chỉ bản RPG Maker)
 - Dịch sai ngôn ngữ đích
 - Nhận biết tên game theo dự án (chỉ bản RPG Maker)
@@ -49,6 +52,16 @@ Khi dịch bằng Google, Index hay Gemini, tên trong danh sách được thay 
 Tên viết bằng chữ Nhật / Trung / Hàn, ví dụ “美琴”, “村長”, **không** nằm trong danh sách giữ nguyên mà được tách sang nhóm riêng **“Tên sẽ được dịch”** trong cùng khu đó, có nhãn “sẽ được dịch” và chip màu riêng, để gửi cho model dịch hoặc phiên âm sang ngôn ngữ đích — xem mục dưới.
 
 - Lưu tiến độ 7 ngày
+
+## Dịch tên — khóa tên chuẩn
+
+Phần **“Dịch tên”** trong khu tên nhân vật hiện cả tên gốc và tên đã dịch cùng nhau, ví dụ “治郎 → Jiro”, “美琴 → Mikoto”, “Sakura → Sakura”. Có ô tìm kiếm để tìm tên theo tên gốc hoặc tên đã dịch, nút **Dịch tất cả tên** và nút dịch từng tên bằng đúng model, ngôn ngữ gốc và ngôn ngữ đích đang chọn, ô sửa tên đã dịch và nút **Áp dụng** to, tối thiểu 44px.
+
+**Tên đã dịch một lần là tên chuẩn, giữ nguyên luôn:** tên đã dịch được lưu theo từng game và khóa lại — Dịch tất cả, dịch hàng loạt, dịch lại dòng Dịch lỗi, nhập CSV/TXT hay khôi phục tiến độ đều không thể ghi lệch tên chuẩn. Dòng tên bị ghi “Jirou” bị ép về đúng “Jiro”; thu thập tên cũng không ghi đè tên chuẩn dù sau đó xuất hiện nhiều dòng lệch hơn. Cùng một tên gốc mà model dịch ra nhiều dạng khác nhau, ví dụ “治郎” chỗ thành “Jirou”, chỗ thành “Jiro” (`Map005.json`, sự kiện #7, Trang 2–4), thì tool thống nhất về một dạng duy nhất là “Jiro” cho tất cả các dòng, và sau khi đã thống nhất thì các dòng đó không còn bị gắn cờ Dịch lỗi nữa.
+
+Bấm **Áp dụng** một lần thì tên đã sửa được lưu theo game và áp dụng ngay cho tất cả các dòng có tên đó, cập nhật danh sách dòng và Khung dịch, dùng cho các lần dịch sau. Việc sửa tên thay đúng tên, đúng chính tả và viết hoa, không sửa nhầm một phần của từ khác — sửa “Jiro” không làm hỏng “JirouSensei” — và không làm mất mã game hay tag trong câu. Tên đã có tên dịch thì không còn nút dịch lại; muốn đổi tên, sửa ở ô tên đã dịch rồi bấm **Áp dụng**.
+
+Tên nhân vật tiếng Nhật đã được dịch hoặc phiên âm đúng sang chữ Latin thì không bị gắn cờ Dịch lỗi oan: “治郎” thành “Jiro” và “美琴” thành “Mikoto” đều không bị gắn cờ. Lỗi thật như “Nội thất錢湯” (còn “錢湯”) và “Đòn đánh/Physikal” vẫn bị gắn cờ như trước.
 
 ## Tên tiếng Nhật phải dịch hết, không dịch nửa vời
 
