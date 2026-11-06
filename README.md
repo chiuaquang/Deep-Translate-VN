@@ -72,6 +72,7 @@ Khi bấm **Xuất file đã dịch** mà còn dòng chưa dịch, dòng Dịch 
   Tool giữ đúng một lần `\n` đó qua trích xuất, dịch, hiển thị, xuất file và nhập TXT, không tách thành hai dòng dịch.
 - Ô Bản dịch là ô nhiều dòng. Nút **Chèn xuống dòng** chèn `\n` đúng vị trí con trỏ. Nút **Tách thoại dài thành nhiều dòng** tách bản dịch tại biên từ, mỗi dòng con không quá khoảng 55 ký tự không tính mã.
 - **Word wrap:** ô tick mặc định tắt, **Word wrap limit** mặc định 55, từ 20 đến 100. Khi bật, lúc xuất file game tool tự ngắt dòng thoại bằng `\n` sao cho mỗi đoạn con không dài quá limit. Nút **Áp dụng Word wrap cho tất cả dòng đã dịch** ngắt ngay trong tool để xem trước. Nút **Xóa Word wrap đã áp dụng** hoàn tác về đúng bản dịch trước khi ngắt, giữ nguyên `\n` đã có sẵn, rồi anh đổi limit và áp dụng lại được. Word wrap chỉ áp dụng cho dòng thoại, không áp dụng cho Xuất CSV / Xuất TXT.
+- **Hoàn tác Word wrap tách theo từng game:** bản sao để hoàn tác Word wrap được khóa theo tên game (`gameTitle` trong `System.json`) + bộ file đang mở, giống như tiến độ dịch. Mở game mới thì ghi chú hoàn tác của game cũ (ví dụ 360 dòng, limit 46) không hiện nữa, nút **Xóa Word wrap đã áp dụng** mờ đi, và bấm nút đó ở game mới không làm gì cả, không khôi phục bản dịch của game cũ vào game mới. Quay lại đúng game cũ, đúng bộ file, thì bản sao của game cũ hiện lại và hoàn tác được đúng cho game đó. Tải riêng file trước rồi tải thêm `System.json` sau thì bản sao tạm được chuyển sang khóa theo tên game mới, không mất bản sao.
 
 ## Nhận biết tên game theo dự án (chỉ bản RPG Maker)
 

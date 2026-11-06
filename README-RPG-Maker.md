@@ -32,6 +32,10 @@ Xem `README.md`, các phần:
 - Cảnh cáo khi xuất file
 - Thoại xuống dòng và Word wrap (chỉ bản RPG Maker)
 - Nhận biết tên game theo dự án (chỉ bản RPG Maker)
+
+## Word wrap — hoàn tác tách theo từng game
+
+Bản sao để hoàn tác Word wrap được khóa theo tên game (`gameTitle` trong `System.json`) + bộ file đang mở, giống như tiến độ dịch. Mở game mới thì ghi chú hoàn tác của game cũ (ví dụ 360 dòng, limit 46) không hiện nữa, nút **Xóa Word wrap đã áp dụng** mờ đi, và bấm nút đó ở game mới không làm gì cả, không khôi phục bản dịch của game cũ vào game mới. Quay lại đúng game cũ, đúng bộ file, thì bản sao của game cũ hiện lại và hoàn tác được đúng cho game đó. Tải riêng file trước rồi tải thêm `System.json` sau thì bản sao tạm được chuyển sang khóa theo tên game mới, không mất bản sao.
 - Lưu tiến độ 7 ngày
 
 ## Xuất / Nhập

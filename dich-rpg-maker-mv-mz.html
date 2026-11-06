@@ -500,7 +500,7 @@ Thank you for saying hello.</pre>
   <div class="project-bar" id="projectBar" aria-label="Dự án game đang dịch">
     <div class="pj-label">Dự án đang dịch</div>
     <div class="pj-name" id="projectName">Dự án: Chưa có System.json - chưa biết tên game</div>
-    <div class="pj-note" id="projectNote">Tên game được đọc từ trường <strong>gameTitle</strong> trong <strong>System.json</strong> của bộ file. Tiến độ dịch 7 ngày được lưu riêng theo từng tên game, nên hai game khác nhau dù trùng tên file cũng không khôi phục nhầm vào nhau.</div>
+    <div class="pj-note" id="projectNote">Tên game được đọc từ trường <strong>gameTitle</strong> trong <strong>System.json</strong> của bộ file. Tiến độ dịch 7 ngày được lưu riêng theo từng tên game, nên hai game khác nhau dù trùng tên file cũng không khôi phục nhầm vào nhau. Bản sao hoàn tác Word wrap cũng được lưu riêng theo từng tên game như vậy — mở game mới sẽ không thấy bản sao của game cũ, quay lại đúng game cũ thì bản sao của game đó vẫn còn để hoàn tác.</div>
   </div>
 
   <div class="card filebar" id="filebar">
@@ -1142,6 +1142,7 @@ function commitGameBatch(items, skipped, switching){
   var migrated = false;
   if(sys.has && wasTempProject && prevOpenFiles.length){
     migrateTempProgressToGame(prevOpenFiles);
+    migrateTempWrapUndoToGame();
     migrated = true;
   }
   renderAll();
@@ -2538,26 +2539,78 @@ function wrapTranslationText(tran, limit){
   });
   return restoreText(outLines.join("\n"), pr.codes);
 }
-/* ----- Bản sao HOÀN TÁC Word wrap -----
+/* ----- Bản sao HOÀN TÁC Word wrap — TÁCH RIÊNG THEO TỪNG GAME -----
    Trước khi áp dụng Word wrap lần đầu, tool lưu một bản sao của đúng các bản dịch sắp bị
    ngắt dòng (bản dịch y hệt như trước khi ngắt) để nút “Xóa Word wrap đã áp dụng” khôi phục
    lại đúng như cũ — nhờ khôi phục từ bản sao nên chỉ xóa đúng các lần xuống dòng \n đã chèn
    thêm khi ngắt, các lần \n có sẵn trong bản dịch trước khi ngắt vẫn giữ nguyên.
-   Bản sao giữ trong bộ nhớ VÀ lưu trong trình duyệt ở khóa RIÊNG dtvn_wrap_undo_rpg_v1
-   (ghi mảnh nếu quá lớn, cùng cách với bản lưu tiến độ) — tải lại trang trong cùng phiên
-   làm việc vẫn còn bản sao để hoàn tác. Khóa này hoàn toàn tách khỏi tiến độ 7 ngày:
-   không ghi đè, không xóa bản lưu tiến độ của bất kỳ file/dòng nào.
+   Bản sao của MỖI GAME được lưu trong trình duyệt ở khóa RIÊNG của game đó (ghi mảnh nếu
+   quá lớn, cùng cách với bản lưu tiến độ): khóa gồm TÊN GAME (gameTitle trong System.json,
+   mã hóa an toàn như khóa tiến độ) + tên các file mà bản sao bao phủ — giống cách tiến độ
+   7 ngày khóa theo tên game. Nhờ vậy bản sao của game cũ KHÔNG hiện ở game mới, KHÔNG bấm
+   hoàn tác nhầm sang game mới được, và quay lại đúng game cũ thì bản sao của game đó hiện
+   lại nguyên vẹn. Chuyển sang game mới bằng hộp cảnh báo đổi game cũng KHÔNG xóa bản sao
+   của game cũ — nó chỉ nằm đúng khóa của game cũ.
+   Khi chưa có System.json (chưa biết tên game) thì bản sao khóa TẠM theo tên file như cũ
+   (phần game là “temp”); khi tải thêm System.json vào sau và nhận được tên game, bản sao
+   tạm được chuyển sang khóa theo tên game (migrateTempWrapUndoToGame, gọi cùng lúc với
+   chuyển tiến độ) — không mất bản sao, không hiện nhầm bản sao của game khác.
+   Bản sao cũ của các bản tool trước (một khóa chung dtvn_wrap_undo_rpg_v1 cho mọi game)
+   được nhận làm bản sao tạm theo tên file, rồi chuyển sang khóa tên game khi mở lại đúng
+   game có dòng khớp — không mất bản sao cũ, nhưng cũng không hiện ở game khác nữa.
+   Khóa bản sao hoàn toàn tách khỏi tiến độ 7 ngày: không ghi đè, không xóa bản lưu tiến
+   độ của bất kỳ file/dòng nào, và hoàn tác một game không xóa bản sao của game khác.
    Nếu áp dụng Word wrap thêm lần nữa khi chưa hoàn tác, bản sao KHÔNG bị ghi đè bằng bản
    đã ngắt: dòng đã có trong bản sao giữ nguyên “bản gốc chưa ngắt” và chỉ cập nhật bản
    “sau khi ngắt” mới nhất; dòng mới ngắt lần đầu mới được thêm vào bản sao. */
-var WRAP_UNDO_KEY = "dtvn_wrap_undo_rpg_v1";
+var WRAP_UNDO_KEY = "dtvn_wrap_undo_rpg_v1";        /* khóa CHUNG cũ — chỉ còn để nhận & chuyển sang khóa theo game */
+var WRAP_UNDO_PREFIX = "dtvn_wrap_undo_rpg_v2::";   /* tiền tố khóa bản sao THEO TỪNG GAME */
 var WRAP_UNDO_CHUNK_CHARS = 700000;
-var wrapUndoBackup = null;   // { savedAt, limit, items: [{file, pathKey, origHash, before, after, isSample}] }
+var wrapUndoBackup = null;   /* bản sao CỦA GAME ĐANG MỞ: { savedAt, limit, gamePart, items: [{file, pathKey, origHash, before, after, isSample}] } */
 var wrapUndoLoaded = false;
+var wrapUndoScope = null;        /* khóa lưu trình duyệt của wrapUndoBackup hiện tại */
+var wrapUndoScopeHint = null;    /* dấu phạm vi (game + bộ file đang mở) mà wrapUndoBackup đã nạp cho */
+var wrapUndoLegacyAdopted = false;
 function wrapUndoKeyOf(fileName, e){
   return fileName + "\u0000" + progressPathKey(e.path) + "\u0000" + progressOrigHash(e.orig);
 }
 function wrapUndoItemKey(it){ return it.file + "\u0000" + it.pathKey + "\u0000" + it.origHash; }
+/* Phần “game” của khóa bản sao: đã biết tên game thì dùng tên game đã mã hóa (đúng như
+   khóa tiến độ); chưa có System.json hoặc gameTitle trống thì là “temp” — khóa tạm theo
+   tên file như cũ, chờ được chuyển sang khóa tên game khi System.json được tải thêm. */
+function wrapUndoGamePart(){
+  if(currentProject.hasSystem && String(currentProject.title || "").trim()){
+    return "game:" + encodeGameTitle(currentProject.title);
+  }
+  return "temp";
+}
+/* Tên các file THẬT đang mở (không tính file mẫu), đã sắp xếp để dấu phạm vi ổn định. */
+function wrapUndoOpenFileNames(){
+  var seen = {}, names = [];
+  files.forEach(function(f){
+    if(f.isSample || seen[f.name]) return;
+    seen[f.name] = 1; names.push(f.name);
+  });
+  names.sort();
+  return names;
+}
+/* Dấu phạm vi hiện tại: đổi mỗi khi đổi game hoặc đổi bộ file đang mở — dùng để biết khi
+   nào phải nạp lại bản sao đúng của game đang mở thay vì dùng bản sao của game trước. */
+function wrapUndoCurrentScopeHint(){
+  return wrapUndoGamePart() + "::" + wrapUndoOpenFileNames().map(function(n){ return encodeURIComponent(n); }).join("|");
+}
+/* Khóa lưu của một bản sao = phần game (tên game đã mã hóa) + tên các file mà bản sao bao
+   phủ (lấy từ chính các dòng trong bản sao), mỗi tên mã hóa an toàn. Hai game khác tên
+   không bao giờ trùng khóa, dù trùng tên file như Map001.json, CommonEvents.json. */
+function wrapUndoStorageKeyForBackup(b){
+  var seen = {}, names = [];
+  (b && b.items ? b.items : []).forEach(function(it){
+    if(it.isSample || seen[it.file]) return;
+    seen[it.file] = 1; names.push(it.file);
+  });
+  names.sort();
+  return WRAP_UNDO_PREFIX + (b && b.gamePart ? b.gamePart : "temp") + "::" + names.map(function(n){ return encodeURIComponent(n); }).join("|");
+}
 function clearWrapUndoStorage(){
   var kill = [];
   try{
@@ -2568,8 +2621,20 @@ function clearWrapUndoStorage(){
   }catch(e){}
   kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
 }
-function dropWrapUndoChunksWhere(dropGen){
-  var chunkPrefix = WRAP_UNDO_KEY + "\u0000", kill = [];
+/* Xóa khóa chính + mọi mảnh của ĐÚNG một khóa bản sao (một game) — không đụng game khác. */
+function removeWrapUndoStorageKey(key){
+  if(!key) return;
+  var kill = [key], chunkPrefix = key + "\u0000";
+  try{
+    for(var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i);
+      if(k && k.indexOf(chunkPrefix) === 0) kill.push(k);
+    }
+  }catch(e){}
+  kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
+}
+function dropWrapUndoChunksWhere(baseKey, dropGen){
+  var chunkPrefix = baseKey + "\u0000", kill = [];
   try{
     for(var i = 0; i < localStorage.length; i++){
       var k = localStorage.key(i);
@@ -2578,20 +2643,26 @@ function dropWrapUndoChunksWhere(dropGen){
   }catch(e){}
   kill.forEach(function(k){ try{ localStorage.removeItem(k); }catch(e){} });
 }
-/* Ghi bản sao hoàn tác vào trình duyệt (khóa riêng, ghi mảnh nếu quá lớn — ghi dở không
-   hỏng bản sao cũ, không bao giờ đụng khóa tiến độ). Dòng của file mẫu không ghi vào
-   trình duyệt (chỉ giữ trong bộ nhớ). Trả false nếu trình duyệt từ chối lưu. */
+/* Ghi bản sao hoàn tác của game đang mở vào ĐÚNG khóa của game đó (ghi mảnh nếu quá lớn —
+   ghi dở không hỏng bản sao cũ của chính game đó, không bao giờ đụng khóa tiến độ hay bản
+   sao của game khác). Dòng của file mẫu không ghi vào trình duyệt (chỉ giữ trong bộ nhớ).
+   Trả false nếu trình duyệt từ chối lưu. */
 function persistWrapUndoBackup(){
-  if(!wrapUndoBackup){ clearWrapUndoStorage(); return false; }
+  if(!wrapUndoBackup) return false;
   var items = [];
   wrapUndoBackup.items.forEach(function(it){
     if(it.isSample) return;
     items.push([it.file, it.pathKey, it.origHash, it.before, it.after]);
   });
-  if(!items.length){ clearWrapUndoStorage(); return false; }
+  if(!items.length) return false;
+  if(!wrapUndoBackup.gamePart) wrapUndoBackup.gamePart = wrapUndoGamePart();
+  var key = wrapUndoStorageKeyForBackup(wrapUndoBackup);
+  var head = { v: 2, savedAt: wrapUndoBackup.savedAt, limit: wrapUndoBackup.limit, gamePart: wrapUndoBackup.gamePart };
   try{
-    localStorage.setItem(WRAP_UNDO_KEY, JSON.stringify({ v: 1, savedAt: wrapUndoBackup.savedAt, limit: wrapUndoBackup.limit, items: items }));
-    dropWrapUndoChunksWhere(function(){ return true; });
+    localStorage.setItem(key, JSON.stringify({ v: head.v, savedAt: head.savedAt, limit: head.limit, gamePart: head.gamePart, items: items }));
+    dropWrapUndoChunksWhere(key, function(){ return true; });
+    if(wrapUndoScope && wrapUndoScope !== key) removeWrapUndoStorageKey(wrapUndoScope);
+    wrapUndoScope = key;
     return true;
   }catch(e){}
   var gen = String(Date.now());
@@ -2605,19 +2676,22 @@ function persistWrapUndoBackup(){
   if(!chunks.length) chunks = [[]];
   try{
     for(var ci = 0; ci < chunks.length; ci++){
-      localStorage.setItem(WRAP_UNDO_KEY + "\u0000" + gen + "\u0000" + ci, JSON.stringify(chunks[ci]));
+      localStorage.setItem(key + "\u0000" + gen + "\u0000" + ci, JSON.stringify(chunks[ci]));
     }
-    localStorage.setItem(WRAP_UNDO_KEY, JSON.stringify({ v: 1, savedAt: wrapUndoBackup.savedAt, limit: wrapUndoBackup.limit, chunks: chunks.length, gen: gen, items: [] }));
-    dropWrapUndoChunksWhere(function(g){ return g !== gen; });
+    localStorage.setItem(key, JSON.stringify({ v: head.v, savedAt: head.savedAt, limit: head.limit, gamePart: head.gamePart, chunks: chunks.length, gen: gen, items: [] }));
+    dropWrapUndoChunksWhere(key, function(g){ return g !== gen; });
+    if(wrapUndoScope && wrapUndoScope !== key) removeWrapUndoStorageKey(wrapUndoScope);
+    wrapUndoScope = key;
     return true;
   }catch(e){
-    dropWrapUndoChunksWhere(function(g){ return g === gen; });
+    dropWrapUndoChunksWhere(key, function(g){ return g === gen; });
     return false;
   }
 }
-function loadWrapUndoFromStorage(){
+/* Đọc một bản sao từ ĐÚNG một khóa lưu (ghép các mảnh nếu có). */
+function loadWrapUndoFromStorageKey(key){
   var raw = null;
-  try{ raw = localStorage.getItem(WRAP_UNDO_KEY); }catch(e){}
+  try{ raw = localStorage.getItem(key); }catch(e){}
   if(!raw) return null;
   var head;
   try{ head = JSON.parse(raw); }catch(e){ return null; }
@@ -2627,7 +2701,7 @@ function loadWrapUndoFromStorage(){
     if(!head.gen) return null;
     for(var ci = 0; ci < head.chunks; ci++){
       var craw = null;
-      try{ craw = localStorage.getItem(WRAP_UNDO_KEY + "\u0000" + head.gen + "\u0000" + ci); }catch(e){}
+      try{ craw = localStorage.getItem(key + "\u0000" + head.gen + "\u0000" + ci); }catch(e){}
       if(!craw) return null;
       try{ var cp = JSON.parse(craw); if(Array.isArray(cp)) rows = rows.concat(cp); }catch(e){ return null; }
     }
@@ -2639,15 +2713,132 @@ function loadWrapUndoFromStorage(){
     }
   });
   if(!items.length) return null;
-  return { savedAt: head.savedAt || 0, limit: head.limit || 0, items: items };
+  return { savedAt: head.savedAt || 0, limit: head.limit || 0, gamePart: head.gamePart || "temp", items: items };
 }
+/* Liệt kê đầu mục của mọi bản sao theo game đang nằm trong trình duyệt (chỉ đọc khóa
+   chính, không ghép mảnh) để tìm bản sao đúng của game đang mở. */
+function listWrapUndoHeads(){
+  var out = [];
+  try{
+    for(var i = 0; i < localStorage.length; i++){
+      var k = localStorage.key(i);
+      if(!k || k.indexOf(WRAP_UNDO_PREFIX) !== 0 || k.indexOf("\u0000") !== -1) continue;
+      var head = null;
+      try{ head = JSON.parse(localStorage.getItem(k) || "null"); }catch(e){}
+      if(head && typeof head === "object") out.push({ key: k, gamePart: head.gamePart || "temp", savedAt: head.savedAt || 0 });
+    }
+  }catch(e){}
+  return out;
+}
+/* Tìm bản sao hoàn tác CỦA GAME ĐANG MỞ trong trình duyệt:
+   - Ưu tiên bản sao có phần game khớp đúng game đang mở và có ít nhất một dòng thuộc file
+     đang mở (bản sao của game khác — dù trùng tên file — không bao giờ khớp phần game).
+   - Đang mở một game đã biết tên mà chỉ có bản sao TẠM (lưu lúc chưa có System.json): nhận
+     bản tạm đó khi có ít nhất một dòng khớp thật trong file đang mở, rồi chuyển hẳn sang
+     khóa theo tên game — đúng như cách tiến độ tạm được nhận sang khóa tên game.
+   Bản sao được nhận từ khóa khác sẽ được ghi lại dưới khóa đúng của game hiện tại và xóa
+   khóa cũ, để từ đó nó chỉ thuộc về game này. */
+function findWrapUndoBackupForCurrent(){
+  var part = wrapUndoGamePart();
+  var openNames = {};
+  wrapUndoOpenFileNames().forEach(function(n){ openNames[n] = 1; });
+  var heads = listWrapUndoHeads();
+  function coveredOverlap(key){
+    var b = loadWrapUndoFromStorageKey(key);
+    if(!b) return null;
+    var overlap = 0;
+    b.items.forEach(function(it){ if(openNames[it.file]) overlap++; });
+    return overlap ? b : null;
+  }
+  var best = null, bestKey = null;
+  heads.forEach(function(h){
+    if(h.gamePart !== part) return;
+    var b = coveredOverlap(h.key);
+    if(b && (!best || (h.savedAt || 0) > (best.savedAt || 0))){ best = b; bestKey = h.key; }
+  });
+  if(!best && part !== "temp"){
+    heads.forEach(function(h){
+      if(h.gamePart !== "temp") return;
+      var b = coveredOverlap(h.key);
+      if(!b) return;
+      var map = wrapUndoCurrentMap(), matched = 0;
+      b.items.forEach(function(it){ if(map[wrapUndoItemKey(it)]) matched++; });
+      if(matched && (!best || (h.savedAt || 0) > (best.savedAt || 0))){ best = b; bestKey = h.key; }
+    });
+    if(best) best.gamePart = part; /* nhận bản tạm sang khóa theo tên game */
+  }
+  if(best && bestKey){
+    wrapUndoBackup = best;
+    wrapUndoScope = bestKey;
+    persistWrapUndoBackup(); /* ghi dưới khóa đúng của game hiện tại; tự xóa khóa cũ nếu khác */
+  }
+  return best;
+}
+/* Bản sao CHUNG cũ (dtvn_wrap_undo_rpg_v1, một khóa cho mọi game): đọc một lần, chuyển
+   thành bản sao TẠM theo tên file (phần game “temp”) rồi xóa khóa chung — từ đó nó chỉ
+   hiện ở đúng game có dòng khớp khi được nhận sang khóa tên game, không hiện ở game khác. */
+function adoptLegacyWrapUndoBackup(){
+  var raw = null;
+  try{ raw = localStorage.getItem(WRAP_UNDO_KEY); }catch(e){}
+  if(!raw) return;
+  var legacy = loadWrapUndoFromStorageKey(WRAP_UNDO_KEY);
+  clearWrapUndoStorage();
+  if(legacy && legacy.items && legacy.items.length){
+    legacy.gamePart = "temp";
+    var keep = wrapUndoBackup, keepScope = wrapUndoScope;
+    wrapUndoBackup = legacy; wrapUndoScope = null;
+    persistWrapUndoBackup();
+    wrapUndoBackup = keep; wrapUndoScope = keepScope;
+  }
+}
+/* Chuyển bản sao TẠM (khóa theo tên file, chưa biết tên game) sang khóa THEO TÊN GAME —
+   gọi cùng lúc với migrateTempProgressToGame khi System.json được tải thêm vào sau.
+   Chỉ chuyển bản sao tạm có file bao phủ đang mở; bản sao của game khác không bị đụng. */
+function migrateTempWrapUndoToGame(){
+  var part = wrapUndoGamePart();
+  if(part === "temp") return;
+  if(wrapUndoBackup && wrapUndoBackup.gamePart === "temp"){
+    wrapUndoBackup.gamePart = part;
+    persistWrapUndoBackup();
+  }
+  var openNames = {};
+  wrapUndoOpenFileNames().forEach(function(n){ openNames[n] = 1; });
+  listWrapUndoHeads().forEach(function(h){
+    if(h.gamePart !== "temp") return;
+    var b = loadWrapUndoFromStorageKey(h.key);
+    if(!b) return;
+    var overlap = 0;
+    b.items.forEach(function(it){ if(openNames[it.file]) overlap++; });
+    if(!overlap) return;
+    b.gamePart = part;
+    var keep = wrapUndoBackup, keepScope = wrapUndoScope;
+    wrapUndoBackup = b; wrapUndoScope = h.key;
+    persistWrapUndoBackup();
+    wrapUndoBackup = keep; wrapUndoScope = keepScope;
+  });
+  /* Sau khi chuyển, nạp lại theo phạm vi mới để nút hoàn tác cập nhật đúng game này. */
+  wrapUndoLoaded = false; wrapUndoScopeHint = null;
+}
+/* Bản sao hoàn tác CỦA GAME ĐANG MỞ. Phạm vi (tên game + bộ file đang mở) thay đổi thì
+   nạp lại đúng bản sao của phạm vi mới — bản sao của game trước không còn được dùng nữa,
+   nên ghi chú và nút hoàn tác ở game mới tắt hẳn như chưa từng áp dụng Word wrap ở đó. */
 function getWrapUndoBackup(){
-  if(!wrapUndoLoaded){ wrapUndoLoaded = true; wrapUndoBackup = loadWrapUndoFromStorage(); }
+  var hint = wrapUndoCurrentScopeHint();
+  if(wrapUndoLoaded && wrapUndoScopeHint === hint) return wrapUndoBackup;
+  wrapUndoLoaded = true; wrapUndoScopeHint = hint;
+  if(!wrapUndoLegacyAdopted){ wrapUndoLegacyAdopted = true; adoptLegacyWrapUndoBackup(); }
+  wrapUndoBackup = findWrapUndoBackupForCurrent();
+  wrapUndoScope = wrapUndoBackup ? wrapUndoStorageKeyForBackup(wrapUndoBackup) : null;
   return wrapUndoBackup;
 }
+/* Xóa bản sao vừa dùng của ĐÚNG game đang mở — bản sao của các game khác vẫn giữ nguyên
+   trong trình duyệt để quay lại game đó còn hoàn tác được. */
 function discardWrapUndoBackup(){
+  var key = wrapUndoScope || (wrapUndoBackup ? wrapUndoStorageKeyForBackup(wrapUndoBackup) : null);
   wrapUndoBackup = null; wrapUndoLoaded = true;
-  clearWrapUndoStorage();
+  wrapUndoScopeHint = wrapUndoCurrentScopeHint();
+  wrapUndoScope = null;
+  if(key) removeWrapUndoStorageKey(key);
 }
 function wrapUndoCurrentMap(){
   var map = {};
@@ -2719,7 +2910,9 @@ function applyWordWrapAll(){
   var savedNote = "";
   if(n){
     backup.limit = limit;
+    backup.gamePart = wrapUndoGamePart();
     wrapUndoBackup = backup; wrapUndoLoaded = true;
+    wrapUndoScopeHint = wrapUndoCurrentScopeHint();
     var hasReal = backup.items.some(function(it){ return !it.isSample; });
     if(hasReal && !persistWrapUndoBackup()){
       savedNote = " Lưu ý: trình duyệt đã hết chỗ lưu nên bản sao hoàn tác hiện chỉ giữ trong bộ nhớ của phiên này — đừng tải lại trang trước khi hoàn tác.";
