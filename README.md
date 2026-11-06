@@ -56,6 +56,7 @@ Một dòng đã dịch được tính là **Dịch lỗi** khi có ít nhất m
 - Bản dịch chứa chuỗi lỗi máy: `undefined`, `null`, `[object Object]`.
 - Bản dịch quá ngắn bất thường, dưới 20% bản gốc dài trên 20 ký tự.
 - Mã bị thiếu, thừa, hoặc bị đổi sau khi đã chèn lại vẫn không đủ.
+- **Dịch sai ngôn ngữ đích:** khi ngôn ngữ đích đang chọn là tiếng Việt, bản dịch chứa một từ ngoại lai không phải tiếng Việt sau khi đã bỏ mã game, mã giữ chỗ và tên nhân vật đã bảo vệ — ví dụ từ tiếng Đức như `Physikal`, `Effekt`, phiên âm romaji như `Butsuri`, `Efekuto`, mẫu chữ tiếng Việt không có (`ff`, `ck`, `sch`, `kt`, `pf`, phụ âm đôi, `f`/`j`/`w`/`z`, `ph` + phụ âm, `k` ở cuối từ), hoặc ký tự tiếng Nhật / Trung / Hàn còn nguyên trong bản dịch. Lý do ghi rõ đúng từ bị nghi, ví dụ **“Dịch sai ngôn ngữ đích: Physikal”**. Ví dụ: `Animations.json` “打撃/物理” dịch thành “Đòn đánh/Physikal” (đúng phải là “Vật lý”) và “打撃/エフェクト” dịch thành “Đòn đánh/Effekt” (đúng phải là “Hiệu ứng”) đều bị gắn cờ. Tên riêng giữ nguyên như “Yuuto Makabe”, tên nhân vật đã bảo vệ, và thuật ngữ game quen thuộc như HP, MP, Save, Load thì không bị tính là sai.
 
 Chip **Dịch lỗi (n)** lọc đúng các dòng lỗi. Dòng lỗi vẫn tính trong Đã dịch. Trong Khung dịch có hộp cảnh báo liệt kê đủ lý do, kèm nút **Xóa bản dịch lỗi**, nút **Dịch lại dòng này**, và nút **Đánh dấu dịch sai** cho lỗi về nghĩa mà máy không tự phát hiện được.
 
@@ -64,6 +65,17 @@ Nút **Dịch lại tất cả dòng Dịch lỗi** dịch lại đúng các dò
 ### Cảnh cáo khi xuất file
 
 Khi bấm **Xuất file đã dịch** mà còn dòng chưa dịch, dòng Dịch lỗi, hoặc dòng Thiếu tag, tool hiện hộp cảnh cáo ghi rõ số dòng từng loại. Bấm **Vẫn xuất file** thì vẫn xuất đúng như cũ. Bấm **Quay lại sửa** thì không xuất gì và chuyển bộ lọc sang Dịch lỗi để sửa nhanh. Cảnh cáo này chỉ áp dụng cho xuất file game, không áp dụng cho Xuất CSV / Xuất TXT.
+
+## Tên nhân vật không dịch (chỉ bản RPG Maker)
+
+Tên nhân vật trong thoại **không được dịch thành nghĩa đen, không được làm mất**:
+
+- Tool tự thu thập tên nhân vật của game đang mở từ `Actors.json` (trường `name` của từng Actor), tên người nói trong lệnh 101 (tham số 4), và các mã `\N[n]` trong thoại, rồi hiện trong khu **“Tên nhân vật không dịch”** ngay dưới khung dịch tự động.
+- Anh có thể thêm tên bằng tay (ô nhập + nút Thêm), sửa tại chỗ, xóa từng tên, xóa tất cả. Danh sách chỉnh tay được lưu trong trình duyệt, khóa riêng theo tên game (`gameTitle`), tải lại đúng game thì còn, game khác thì có danh sách khác.
+- Khi dịch bằng mọi đường — Google, Index, Gemini, từng dòng, theo lô, Dịch tất cả, dịch hàng loạt, dịch lại dòng lỗi — tên trong danh sách được thay bằng mã giữ chỗ riêng trước khi gửi cho model, rồi khôi phục nguyên vẹn đúng chính tả và viết hoa sau khi dịch. Prompt của Gemini và Index luôn có ý giữ nguyên tên nhân vật, không dịch tên riêng.
+- Sau dịch, tool kiểm chứng: nếu bản dịch thiếu một tên mà bản gốc có, tool tự chèn lại tên đó vào vị trí tương ứng (đầu, giữa, cuối câu) và ghi log; nếu vẫn thiếu thì gắn cờ Dịch lỗi với lý do **“Thiếu tên nhân vật: \<tên\>”**.
+
+Ví dụ: câu “hôm nay trời mưa phải không sakura” sau khi dịch vẫn còn nguyên “Sakura”, không thành “hoa anh đào”.
 
 ## Thoại xuống dòng và Word wrap (chỉ bản RPG Maker)
 
