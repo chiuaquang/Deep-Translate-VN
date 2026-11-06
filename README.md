@@ -32,7 +32,7 @@ Xem hướng dẫn đầy đủ trong `huongdan.html`.
 
 - Ngôn ngữ nguồn mặc định: Tự động. Ngôn ngữ đích mặc định: Tiếng Việt.
 - Nhà cung cấp: **Google Translate** (miễn phí), **Index Translate** (miễn phí, 2B / 9B / 35B-A3B), **Gemini Flash** (dùng key của người dùng, lưu trong trình duyệt).
-- Prompt dịch dùng cho Gemini và Index Translate, không dùng cho Google Translate. Prompt có thể sửa, lưu tên, tải lại, xóa, khôi phục mặc định.
+- Prompt dịch dùng cho Gemini và Index Translate, không dùng cho Google Translate. Prompt có thể sửa, lưu tên, tải lại, xóa, khôi phục mặc định. Prompt mặc định của Index và Gemini có thêm ý: dịch toàn bộ sang ngôn ngữ đích, không để lại bất kỳ chữ tiếng Nhật / Trung / Hàn nào trong bản dịch, kể cả tên nhân vật tiếng Nhật cũng phải dịch hoặc phiên âm sang ngôn ngữ đích, không dịch một nửa Việt một nửa Nhật.
 - **Batch dịch:** số dòng mỗi lần gọi, mặc định 20, tối đa 50, nên để 10–20. Batch cao dễ bị Google chặn 429, mất tag, tốn quota.
 - RPG Maker có thêm **Số luồng song song** cho Index và Gemini, mặc định 3, từ 1 đến 5. Google Translate dịch tuần tự.
 
@@ -56,6 +56,7 @@ Một dòng đã dịch được tính là **Dịch lỗi** khi có ít nhất m
 - Bản dịch chứa chuỗi lỗi máy: `undefined`, `null`, `[object Object]`.
 - Bản dịch quá ngắn bất thường, dưới 20% bản gốc dài trên 20 ký tự.
 - Mã bị thiếu, thừa, hoặc bị đổi sau khi đã chèn lại vẫn không đủ.
+- **Còn chữ tiếng Nhật chưa dịch:** khi ngôn ngữ đích đang chọn là tiếng Việt, bản dịch còn chữ tiếng Nhật / Trung / Hàn nguyên văn thì bị gắn cờ với lý do ghi rõ chữ còn lại, ví dụ **“Còn chữ tiếng Nhật chưa dịch: 錢湯”**. Sau khi dịch bằng Index, Gemini hay Google — từng dòng, theo Batch, dịch hàng loạt, dịch lại dòng lỗi — nếu bản dịch còn chữ Nhật / Trung / Hàn, tool tự dịch lại dòng đó đúng một lần với prompt mạnh hơn, yêu cầu dịch toàn bộ; nếu sau lần dịch lại vẫn còn sót thì giữ cờ Dịch lỗi để dịch lại tiếp bằng nút **Dịch lại dòng này** / **Dịch lại tất cả dòng Dịch lỗi**. Tool không bao giờ tự xóa chữ Nhật khỏi bản dịch mà không dịch, vì như vậy sẽ mất nghĩa. Ví dụ: `MapInfos.json` “錢湯内装” dịch thành “Nội thất錢湯”, `System.json` switches “錢湯終了” dịch thành “錢湯 kết thúc” và “村長錢湯登場” dịch thành “村長錢湯 xuất hiện” đều bị gắn cờ vì còn chữ Nhật chưa dịch.
 - **Dịch sai ngôn ngữ đích:** khi ngôn ngữ đích đang chọn là tiếng Việt, bản dịch chứa một từ ngoại lai không phải tiếng Việt sau khi đã bỏ mã game, mã giữ chỗ và tên nhân vật đã bảo vệ — ví dụ từ tiếng Đức như `Physikal`, `Effekt`, phiên âm romaji như `Butsuri`, `Efekuto`, mẫu chữ tiếng Việt không có (`ff`, `ck`, `sch`, `kt`, `pf`, phụ âm đôi, `f`/`j`/`w`/`z`, `ph` + phụ âm, `k` ở cuối từ), hoặc ký tự tiếng Nhật / Trung / Hàn còn nguyên trong bản dịch. Lý do ghi rõ đúng từ bị nghi, ví dụ **“Dịch sai ngôn ngữ đích: Physikal”**. Ví dụ: `Animations.json` “打撃/物理” dịch thành “Đòn đánh/Physikal” (đúng phải là “Vật lý”) và “打撃/エフェクト” dịch thành “Đòn đánh/Effekt” (đúng phải là “Hiệu ứng”) đều bị gắn cờ. Tên riêng giữ nguyên như “Yuuto Makabe”, tên nhân vật đã bảo vệ, và thuật ngữ game quen thuộc như HP, MP, Save, Load thì không bị tính là sai.
 
 Chip **Dịch lỗi (n)** lọc đúng các dòng lỗi. Dòng lỗi vẫn tính trong Đã dịch. Trong Khung dịch có hộp cảnh báo liệt kê đủ lý do, kèm nút **Xóa bản dịch lỗi**, nút **Dịch lại dòng này**, và nút **Đánh dấu dịch sai** cho lỗi về nghĩa mà máy không tự phát hiện được.
@@ -68,8 +69,9 @@ Khi bấm **Xuất file đã dịch** mà còn dòng chưa dịch, dòng Dịch 
 
 ## Tên nhân vật không dịch (chỉ bản RPG Maker)
 
-Tên nhân vật trong thoại **không được dịch thành nghĩa đen, không được làm mất**:
+Tên nhân vật trong thoại **không được dịch thành nghĩa đen, không được làm mất** — nhưng chỉ với tên đã ở dạng chữ Latin hoặc đã ở dạng ngôn ngữ đích:
 
+- Bảo vệ tên nhân vật chỉ áp dụng cho tên chữ Latin / dạng ngôn ngữ đích, ví dụ “Sakura”, “Yuuto Makabe”, “Mila”. Tên viết bằng chữ Nhật / Trung / Hàn, ví dụ “美琴”, “村長”, **không** nằm trong danh sách giữ nguyên. Khi thu thập tự động, các tên này được tách sang nhóm riêng **“Tên sẽ được dịch”** ngay trong khu “Tên nhân vật không dịch”, có nhãn “sẽ được dịch” và chip màu riêng, để gửi cho model dịch hoặc phiên âm sang ngôn ngữ đích — ví dụ “美琴” thành “Mikoto” hoặc “Mỹ Cầm” — không được để nguyên “美琴” trong bản dịch. Tên phiên âm đúng như “Mikoto” không bị gắn cờ Dịch lỗi oan. “Massage kết thúc” (từ “マッサージ終了”) vẫn bị tính là chưa dịch đúng, còn “Mát-xa kết thúc” thì không.
 - Tool tự thu thập tên nhân vật của game đang mở từ `Actors.json` (trường `name` của từng Actor), tên người nói trong lệnh 101 (tham số 4), và các mã `\N[n]` trong thoại, rồi hiện trong khu **“Tên nhân vật không dịch”** ngay dưới khung dịch tự động.
 - Anh có thể thêm tên bằng tay (ô nhập + nút Thêm), sửa tại chỗ, xóa từng tên, xóa tất cả. Danh sách chỉnh tay được lưu trong trình duyệt, khóa riêng theo tên game (`gameTitle`), tải lại đúng game thì còn, game khác thì có danh sách khác.
 - Khi dịch bằng mọi đường — Google, Index, Gemini, từng dòng, theo lô, Dịch tất cả, dịch hàng loạt, dịch lại dòng lỗi — tên trong danh sách được thay bằng mã giữ chỗ riêng trước khi gửi cho model, rồi khôi phục nguyên vẹn đúng chính tả và viết hoa sau khi dịch. Prompt của Gemini và Index luôn có ý giữ nguyên tên nhân vật, không dịch tên riêng.

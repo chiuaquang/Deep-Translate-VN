@@ -299,6 +299,10 @@ button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
 .cn-chip{display:inline-flex;align-items:center;gap:7px;flex-wrap:wrap;background:var(--sky-soft);border:1px solid var(--line);border-radius:999px;padding:5px 6px 5px 13px;min-width:0;max-width:100%}
 .cn-chip .cn-name{font-weight:700;font-size:13.5px;overflow-wrap:anywhere}
 .cn-chip .cn-auto{font-size:10.5px;font-weight:700;background:var(--card);color:var(--sky);border-radius:999px;padding:2px 7px;white-space:nowrap}
+.cn-chip.translate{background:var(--amber-soft);border-color:var(--amber)}
+.cn-chip .cn-trans{font-size:10.5px;font-weight:700;background:var(--amber);color:#fff;border-radius:999px;padding:2px 7px;white-space:nowrap}
+.cn-group-label{margin-top:16px;font-weight:800;font-size:14px;color:var(--ink)}
+.cn-group-label span{color:var(--amber)}
 .cn-chip button{padding:5px 11px;font-size:12.5px;min-height:34px;background:var(--card);box-shadow:none}
 .cn-chip button.cn-del{color:var(--warn);border-color:var(--warn-line)}
 .cn-chip .cn-edit-input{width:150px;max-width:52vw;min-width:0;font-family:inherit;font-size:13.5px;font-weight:600;padding:7px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink)}
@@ -642,8 +646,13 @@ Thank you for saying hello.</pre>
 
   <section class="card cn-panel" id="charNamePanel" aria-label="Tên nhân vật không dịch">
     <h2>Tên nhân vật không dịch</h2>
-    <p class="cn-sub">Tool tự nhận tên nhân vật từ <strong>Actors.json</strong> (trường <code>name</code> của từng nhân vật), từ <strong>tên người nói</strong> trong lệnh thoại và từ các mã <strong>\N[n]</strong> trong thoại. Tên nằm trong danh sách này được <strong>giữ nguyên y hệt</strong> khi dịch bằng mọi model (Google, Index Translate, Gemini) — không bị dịch sang nghĩa đen, ví dụ “Sakura” không thành “hoa anh đào”, và không bị làm mất khỏi câu. Anh có thể thêm tên bằng tay; danh sách được lưu trong trình duyệt <strong>riêng theo từng tên game</strong>, mở lại đúng game đó là danh sách vẫn còn, game khác thì có danh sách khác.</p>
+    <p class="cn-sub">Tool tự nhận tên nhân vật từ <strong>Actors.json</strong> (trường <code>name</code> của từng nhân vật), từ <strong>tên người nói</strong> trong lệnh thoại và từ các mã <strong>\N[n]</strong> trong thoại. Tên <strong>đã ở dạng chữ Latin</strong> nằm trong danh sách này được <strong>giữ nguyên y hệt</strong> khi dịch bằng mọi model (Google, Index Translate, Gemini) — không bị dịch sang nghĩa đen, ví dụ “Sakura” không thành “hoa anh đào”, và không bị làm mất khỏi câu. Ngược lại, tên viết bằng <strong>chữ Nhật / Trung / Hàn</strong> (ví dụ “美琴”) <strong>không</strong> được giữ nguyên: các tên đó hiện ở nhóm <strong>“Tên sẽ được dịch”</strong> bên dưới và sẽ được model dịch hoặc phiên âm sang ngôn ngữ đích. Anh có thể thêm tên bằng tay; danh sách được lưu trong trình duyệt <strong>riêng theo từng tên game</strong>, mở lại đúng game đó là danh sách vẫn còn, game khác thì có danh sách khác.</p>
     <div class="cn-list" id="cnList" aria-label="Danh sách tên nhân vật không dịch"></div>
+    <div id="cnTransWrap" style="display:none">
+      <div class="cn-group-label">Tên chữ Nhật / Trung / Hàn — <span>sẽ được dịch</span>, không giữ nguyên</div>
+      <p class="cn-sub" style="margin-top:4px">Các tên dưới đây viết bằng chữ Nhật / Trung / Hàn nên <strong>không</strong> nằm trong danh sách giữ nguyên. Khi dịch, tool gửi các tên này cho model để <strong>dịch hoặc phiên âm sang ngôn ngữ đích</strong> (ví dụ “美琴” → “Mikoto” / “Mỹ Cầm”) — bản dịch không được để nguyên chữ Nhật / Trung / Hàn.</p>
+      <div class="cn-list" id="cnListTranslate" aria-label="Danh sách tên nhân vật sẽ được dịch"></div>
+    </div>
     <div class="cn-addrow">
       <input type="text" id="cnInput" placeholder="Thêm tên nhân vật, ví dụ: Sakura…" aria-label="Tên nhân vật cần thêm" />
       <button type="button" class="btn-primary" id="btnAddCharName">Thêm</button>
@@ -747,10 +756,10 @@ Thank you for saying hello.</pre>
       <li><strong>Tool tự trích:</strong> thoại sự kiện <code>401</code>, lựa chọn <code>102</code>, tên &amp; mô tả vật phẩm / kỹ năng / nhân vật, và 53 <strong>thông điệp hệ thống</strong> trong <code>System.json → terms → messages</code> (Always Dash, BGM Volume, câu hỏi lưu/tải file…), <strong>thông báo plugin</strong> của lệnh <code>notify</code> (plugin <code>TorigoyaMZ_NotifyMessage</code>, lệnh plugin <code>357</code>) và <strong>chuỗi hiển thị plugin</strong> của lệnh <code>dText</code> (plugin <code>DTextPicture</code>) — tên file hình và âm thanh tự bị bỏ qua, các trường khác của lệnh plugin (biểu tượng, ghi chú, tên file…) không được trích và giữ nguyên khi xuất. Tham số lệnh và code game khác không được trích và giữ nguyên y hệt như file gốc khi xuất. Khi xuất, nhánh <code>402</code> cũng tự khớp theo lựa chọn <code>102</code> đã dịch.</li>
       <li><strong>Dịch từng dòng:</strong> bấm vào một dòng trong danh sách, gõ bản dịch vào <strong>Khung dịch</strong>. Các mã như <code>\C[17]</code>, <code>\N[1]</code>, <code>\V[3]</code> được tô màu riêng — giữ nguyên chúng trong bản dịch.</li>
       <li><strong>Mã được bảo vệ:</strong> các mã RPG Maker như <code>\C[n]</code>, <code>\dac</code>, <code>\nc</code>… được giữ nguyên y hệt trong bản dịch; nếu bị nhà cung cấp dịch làm mất, tool tự chèn lại đúng vị trí. Xem danh sách đầy đủ các mã được bảo vệ trong <a href="huongdan.html" style="color:var(--pink);font-weight:700">Hướng dẫn</a>.</li>
-      <li><strong>Tên nhân vật không dịch:</strong> tool tự nhận tên nhân vật từ <code>Actors.json</code>, từ tên người nói và từ mã <code>\N[n]</code>, hiện trong khu <strong>“Tên nhân vật không dịch”</strong> ngay dưới khung dịch tự động. Tên trong danh sách được giữ nguyên y hệt khi dịch — không bị dịch sang nghĩa đen (ví dụ “Sakura” không thành “hoa anh đào”) và không bị làm mất; nếu bản dịch vẫn thiếu tên, tool tự chèn lại tên vào vị trí tương ứng hoặc gắn cờ <strong>Dịch lỗi</strong> với lý do “Thiếu tên nhân vật”. Anh có thể thêm / sửa / xóa tên trong khu đó, danh sách lưu riêng theo từng tên game.</li>
+      <li><strong>Tên nhân vật không dịch:</strong> tool tự nhận tên nhân vật từ <code>Actors.json</code>, từ tên người nói và từ mã <code>\N[n]</code>, hiện trong khu <strong>“Tên nhân vật không dịch”</strong> ngay dưới khung dịch tự động. Tên <strong>đã ở dạng chữ Latin</strong> trong danh sách được giữ nguyên y hệt khi dịch — không bị dịch sang nghĩa đen (ví dụ “Sakura” không thành “hoa anh đào”) và không bị làm mất; nếu bản dịch vẫn thiếu tên, tool tự chèn lại tên vào vị trí tương ứng hoặc gắn cờ <strong>Dịch lỗi</strong> với lý do “Thiếu tên nhân vật”. Tên viết bằng <strong>chữ Nhật / Trung / Hàn</strong> (ví dụ “美琴”) thì <strong>không</strong> được giữ nguyên: chúng hiện ở nhóm <strong>“Tên sẽ được dịch”</strong> trong cùng khu và sẽ được dịch hoặc phiên âm sang ngôn ngữ đích. Anh có thể thêm / sửa / xóa tên trong khu đó, danh sách lưu riêng theo từng tên game.</li>
       <li><strong>Batch dịch:</strong> trong khung “Dịch tự động bằng Model”, ô <strong>Số dòng mỗi Batch</strong> mặc định là 20, dùng cho cả Google Translate, Index Translate và Gemini Flash. Bấm “Dịch tất cả” hoặc “Dịch hàng loạt tất cả file” là tool gom đúng số dòng đó thành một lô để dịch. <strong>Batch cao (trên 20–30) dễ bị Google trả 429 chặn tạm thời, URL quá dài, dịch sai hoặc mất tag, và tốn quota Gemini / Index nhanh hơn</strong> — nếu một lô gặp lỗi, tool tự chia nhỏ lô đó và thử lại; anh nên để Batch ở mức 10–20. Nhập trên 50, tool tự giới hạn lại ở 50 để tránh lỗi hàng loạt.</li>
       <li><strong>Chú ý cảnh báo đỏ:</strong> nếu bản dịch thiếu tag/mã so với câu gốc, dòng đó báo đỏ và ghi rõ mã bị thiếu để anh sửa trước khi xuất.</li>
-      <li><strong>Dịch sai ngôn ngữ đích:</strong> khi ngôn ngữ đích là tiếng Việt, dòng đã dịch mà còn chứa từ không phải tiếng Việt (ví dụ model dịch từ tiếng Nhật ra tiếng Đức “Physikal”, “Effekt” thay vì “Vật lý”, “Hiệu ứng”), từ phiên âm romaji còn sót, hoặc ký tự tiếng Nhật / Trung / Hàn chưa dịch, sẽ bị tính là <strong>Dịch lỗi</strong> với lý do ghi rõ từ bị nghi, ví dụ “Dịch sai ngôn ngữ đích: Physikal” — bấm chip <strong>Dịch lỗi</strong> để xem và dùng nút “Dịch lại dòng này” hoặc “Dịch lại tất cả dòng Dịch lỗi”. Tên nhân vật đã bảo vệ, tên riêng và từ tiếng Anh vốn có trong bản gốc (như “Yuuto Makabe”) giữ nguyên không bị tính là sai, thuật ngữ game quen thuộc như HP, MP, Save, Load cũng vậy.</li>
+      <li><strong>Dịch sai ngôn ngữ đích:</strong> khi ngôn ngữ đích là tiếng Việt, dòng đã dịch mà còn chứa từ không phải tiếng Việt (ví dụ model dịch từ tiếng Nhật ra tiếng Đức “Physikal”, “Effekt” thay vì “Vật lý”, “Hiệu ứng”) hoặc từ phiên âm romaji còn sót, sẽ bị tính là <strong>Dịch lỗi</strong> với lý do ghi rõ từ bị nghi, ví dụ “Dịch sai ngôn ngữ đích: Physikal”. Riêng chữ Nhật / Trung / Hàn còn nguyên trong bản dịch (dịch nửa vời một nửa Việt một nửa Nhật, ví dụ “錢湯内装” dịch thành “Nội thất錢湯”) thì lý do là <strong>“Còn chữ tiếng Nhật chưa dịch: 錢湯”</strong>: ngay sau khi dịch, tool đã tự dịch lại dòng đó 1 lần với yêu cầu dịch toàn bộ, và nếu vẫn còn sót thì giữ cờ Dịch lỗi này để anh bấm chip <strong>Dịch lỗi</strong> xem và dùng nút “Dịch lại dòng này” hoặc “Dịch lại tất cả dòng Dịch lỗi” dịch lại tiếp. Tên nhân vật đã bảo vệ, tên riêng và từ tiếng Anh vốn có trong bản gốc (như “Yuuto Makabe”) giữ nguyên không bị tính là sai, thuật ngữ game quen thuộc như HP, MP, Save, Load cũng vậy.</li>
       <li><strong>Xuất file:</strong> bấm <strong>Xuất JSON</strong> — nếu chỉ mở <strong>1 file</strong> thì tải đúng 1 file <code>.json</code> mang đúng tên gốc, không thêm hậu tố nào (ví dụ mở <code>Map001.json</code> thì xuất ra <code>Map001.json</code>, mở <code>Items.json</code> thì xuất ra <code>Items.json</code>). Nếu mở <strong>nhiều file</strong> thì tải đúng 1 file zip duy nhất tên <code>Deep Translate VN RPG.zip</code>, trong zip chứa tất cả các file <code>.json</code> đã dịch, mỗi file giữ nguyên cấu trúc của chính nó và mang đúng tên gốc của nó. Giải nén zip rồi thả thẳng vào thư mục <code>data</code> của game. Cần dịch ở nơi khác thì dùng <strong>Xuất / Nhập CSV</strong>.</li>
     </ol>
   </section>
@@ -873,8 +882,11 @@ var FOREIGN_ALWAYS = {physikal:1,effekt:1,effekte:1,physisch:1,magisch:1,schaden
 butsuri:1,efekuto:1,dameji:1,kougeki:1,bougyo:1,kaihuku:1,maho:1,mahou:1,honoo:1,koori:1,kaminari:1,hikari:1,yami:1,chikara:1,doku:1,nemuri:1,chinmoku:1,mahi:1,senshi:1};
 /* Từ tiếng Anh thông dụng trong game — chỉ tính là nghi sai khi bản gốc là tiếng Nhật / Trung
    (đáng lẽ phải dịch sang tiếng Việt) chứ không phải khi bản gốc vốn là tiếng Anh. */
-var FOREIGN_EN_FROM_CJK = {physical:1,effect:1,effects:1,magical:1,magic:1,damage:1,attack:1,defense:1,defence:1,power:1,strength:1,speed:1,agility:1,luck:1,critical:1,fire:1,water:1,earth:1,wind:1,thunder:1,lightning:1,ice:1,dark:1,darkness:1,holy:1,slash:1,strike:1,blow:1,pierce:1,heal:1,healing:1,recover:1,recovery:1,poison:1,sleep:1,silence:1,paralysis:1,death:1,revive:1,escape:1,sword:1,shield:1,spear:1,axe:1,staff:1,potion:1,elixir:1,weapon:1,armor:1,armour:1,helmet:1,boots:1,ring:1,amulet:1,buy:1,sell:1,price:1};
+var FOREIGN_EN_FROM_CJK = {physical:1,effect:1,effects:1,magical:1,magic:1,massage:1,damage:1,attack:1,defense:1,defence:1,power:1,strength:1,speed:1,agility:1,luck:1,critical:1,fire:1,water:1,earth:1,wind:1,thunder:1,lightning:1,ice:1,dark:1,darkness:1,holy:1,slash:1,strike:1,blow:1,pierce:1,heal:1,healing:1,recover:1,recovery:1,poison:1,sleep:1,silence:1,paralysis:1,death:1,revive:1,escape:1,sword:1,shield:1,spear:1,axe:1,staff:1,potion:1,elixir:1,weapon:1,armor:1,armour:1,helmet:1,boots:1,ring:1,amulet:1,buy:1,sell:1,price:1};
 var CJK_ANY_RE = /[぀-ヿ㐀-䶿一-鿿豈-﫿가-힣]/;
+/* Tên / chuỗi có chứa chữ Nhật, Trung hoặc Hàn: những tên này KHÔNG được bảo vệ giữ nguyên
+   mà phải được dịch hoặc phiên âm sang ngôn ngữ đích (xem khối Tên nhân vật ở dưới). */
+function hasCJKChars(s){ return CJK_ANY_RE.test(String(s == null ? "" : s)); }
 function countVowelGroups(w){
   var m = String(w).match(/[aeiouy]+/g);
   return m ? m.length : 0;
@@ -919,11 +931,16 @@ function wrongLangSuspects(orig, tran){
     if(GAME_TERM_ALLOW[lw]) return;                          /* thuật ngữ game quen thuộc */
     if(origWords[lw]) return;                                /* từ đã có trong bản gốc (tên riêng…) */
     var bad = false;
+    /* Từ viết hoa đầu (dạng tên riêng) được MIỄN hai luật đếm nhóm nguyên âm ở dưới: tên nhân
+       vật chữ Nhật đã được phiên âm đúng sang chữ Latin như “Mikoto” (từ “美琴”) là bản dịch
+       ĐÚNG, không phải lỗi sai ngôn ngữ. Các luật danh sách và mẫu chữ vẫn áp dụng cho mọi từ
+       nên “Physikal”, “Effekt”, “Massage” viết hoa vẫn bị bắt như thường. */
+    var isCapName = /^[A-ZÀ-Þ]/.test(w);
     if(FOREIGN_ALWAYS[lw]) bad = true;
     else if(origCJK && FOREIGN_EN_FROM_CJK[lw]) bad = true;
     else if(hasNonVietnamesePattern(lw)) bad = true;
-    else if(countVowelGroups(lw) >= 3) bad = true;           /* từ nhiều âm tiết ngoại lai không dấu */
-    else if(origCJK && lw.length >= 4 && countVowelGroups(lw) >= 2) bad = true;  /* romaji / ngoại lai còn sót khi gốc là Nhật / Trung */
+    else if(!isCapName && countVowelGroups(lw) >= 3) bad = true;           /* từ nhiều âm tiết ngoại lai không dấu */
+    else if(!isCapName && origCJK && lw.length >= 4 && countVowelGroups(lw) >= 2) bad = true;  /* romaji / ngoại lai còn sót khi gốc là Nhật / Trung */
     if(bad && out.indexOf(w) === -1) out.push(w);
   });
   return out;
@@ -984,7 +1001,7 @@ function detectBadTran(orig, tran){
       reasons.push("Dịch sai ngôn ngữ đích: " + w);
     });
     leftoverCJKRuns(orig, t).forEach(function(r){
-      reasons.push("Dịch sai ngôn ngữ đích: còn ký tự chưa dịch " + r);
+      reasons.push("Còn chữ tiếng Nhật chưa dịch: " + r);
     });
   }
   /* 2) Chuỗi lỗi máy: "undefined", "null" đứng riêng thành từ, "[object Object]". */
@@ -2245,7 +2262,7 @@ if($("btnClearProgress")){
 }
 
 /* ----- Prompt dịch AI: lưu NHIỀU prompt trong localStorage ----- */
-var DEFAULT_PROMPT = "Bạn là dịch giả game RPG chuyên nghiệp. Hãy dịch văn bản sau từ {src} sang {tgt}.\n- Giữ nguyên y hệt mọi tag/mã RPG Maker xuất hiện trong văn bản, ví dụ \\C[17], \\C[0], \\N[1], \\V[1], \\I[23] — không dịch mã, không sửa mã, không đổi số trong ngoặc của mã, không làm mất bất kỳ mã nào và không thêm mã mới nào, kể cả mã ở đầu câu hoặc cuối câu; chỉ dịch phần chữ.\n- Giữ nguyên dấu xuống dòng trong văn bản: không gộp các dòng thành một dòng dài; nếu văn bản gốc có xuống dòng thì bản dịch cũng phải xuống dòng ở vị trí tương ứng.\n- Chỉ trả lại đúng bản dịch, không giải thích thêm, không thêm lời dẫn, không thêm dấu ngoặc hay chữ nào ngoài bản dịch.\n- Giữ giọng văn game tự nhiên, đúng sắc thái hội thoại, dễ đọc cho người chơi.\n- Giữ nguyên y hệt tên nhân vật, không dịch tên riêng: tên nhân vật và mọi tên riêng phải giữ nguyên đúng như trong bản gốc, không dịch sang nghĩa đen, kể cả khi tên đó cũng là một từ thông thường.";
+var DEFAULT_PROMPT = "Bạn là dịch giả game RPG chuyên nghiệp. Hãy dịch văn bản sau từ {src} sang {tgt}.\n- Giữ nguyên y hệt mọi tag/mã RPG Maker xuất hiện trong văn bản, ví dụ \\C[17], \\C[0], \\N[1], \\V[1], \\I[23] — không dịch mã, không sửa mã, không đổi số trong ngoặc của mã, không làm mất bất kỳ mã nào và không thêm mã mới nào, kể cả mã ở đầu câu hoặc cuối câu; chỉ dịch phần chữ.\n- Giữ nguyên dấu xuống dòng trong văn bản: không gộp các dòng thành một dòng dài; nếu văn bản gốc có xuống dòng thì bản dịch cũng phải xuống dòng ở vị trí tương ứng.\n- Chỉ trả lại đúng bản dịch, không giải thích thêm, không thêm lời dẫn, không thêm dấu ngoặc hay chữ nào ngoài bản dịch.\n- Giữ giọng văn game tự nhiên, đúng sắc thái hội thoại, dễ đọc cho người chơi.\n- Giữ nguyên y hệt tên nhân vật ĐÃ Ở DẠNG CHỮ LATIN hoặc đã ở dạng ngôn ngữ đích, không dịch tên riêng dạng đó: giữ nguyên đúng như trong bản gốc, không dịch sang nghĩa đen, kể cả khi tên đó cũng là một từ thông thường.\n- Dịch toàn bộ sang {tgt}, không để lại bất kỳ chữ tiếng Nhật, Trung, Hàn nào trong bản dịch: kể cả tên nhân vật viết bằng chữ Nhật, Trung, Hàn cũng phải dịch hoặc phiên âm sang ngôn ngữ đích; không dịch một nửa ngôn ngữ đích một nửa chữ Nhật, không để nguyên chữ Nhật, Trung, Hàn trong bản dịch.";
 var PROMPTS_KEY="dtvn_prompts_rpg_v1", PROMPT_SEL_KEY="dtvn_prompt_selected_rpg_v1";
 function loadPrompts(){ try{ var v=JSON.parse(localStorage.getItem(PROMPTS_KEY)||"[]"); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
 function savePrompts(list){ try{ localStorage.setItem(PROMPTS_KEY, JSON.stringify(list)); }catch(e){} }
@@ -2307,12 +2324,22 @@ $("atPrompt").value=DEFAULT_PROMPT;
   for(var i=0;i<list.length;i++){ if(String(list[i].id)===String(sel)){ $("atPrompt").value=list[i].text; $("promptName").value=list[i].name; break; } }
   renderPromptList();
 })();
+/* Prompt GỬI ĐI MẠNH HƠN dùng cho lần tự dịch lại khi bản dịch còn sót chữ Nhật/Trung/Hàn:
+   tính từ effectivePrompt() hiện tại rồi cộng thêm yêu cầu dịch toàn bộ — vẫn chỉ nói về
+   việc dịch, không nhắc mã giữ chỗ. */
+var promptOverrideText = null;
+function strongFullTranslationPrompt(){
+  var base = effectivePrompt();
+  return base + "\n- LƯU Ý QUAN TRỌNG CHO LẦN DỊCH LẠI NÀY: lần dịch trước còn sót chữ tiếng Nhật, Trung, Hàn chưa dịch. Hãy dịch lại TOÀN BỘ văn bản sang ngôn ngữ đích, dịch hoặc phiên âm mọi chữ tiếng Nhật, Trung, Hàn — kể cả tên nhân vật viết bằng chữ Nhật, Trung, Hàn — sang ngôn ngữ đích; tuyệt đối không để lại bất kỳ ký tự tiếng Nhật, Trung, Hàn nào trong bản dịch và không dịch nửa vời một nửa ngôn ngữ đích một nửa chữ gốc.";
+}
 function effectivePrompt(){
+  if(promptOverrideText) return promptOverrideText;
   var raw=$("atPrompt").value.trim()||DEFAULT_PROMPT;
-  /* Ý giữ tên nhân vật luôn có mặt trong prompt gửi cho Gemini / Index (kể cả khi anh đang
-     dùng prompt tự lưu chưa có ý này) — câu này chỉ nói về tên riêng, không nhắc mã giữ chỗ.
-     Google Translate không dùng prompt nên không bị ảnh hưởng. */
-  if(raw.indexOf("tên nhân vật") === -1) raw += "\n- Giữ nguyên y hệt tên nhân vật, không dịch tên riêng: tên nhân vật và mọi tên riêng phải giữ nguyên đúng như trong bản gốc, không dịch sang nghĩa đen, kể cả khi tên đó cũng là một từ thông thường.";
+  /* Hai ý bắt buộc luôn có mặt trong prompt gửi cho Gemini / Index (kể cả khi anh đang dùng
+     prompt tự lưu chưa có hai ý này) — các câu này chỉ nói về tên riêng và về việc dịch toàn
+     bộ, không nhắc mã giữ chỗ. Google Translate không dùng prompt nên không bị ảnh hưởng. */
+  if(raw.indexOf("tên nhân vật") === -1) raw += "\n- Giữ nguyên y hệt tên nhân vật đã ở dạng chữ Latin hoặc đã ở dạng ngôn ngữ đích, không dịch tên riêng dạng đó: giữ nguyên đúng như trong bản gốc, không dịch sang nghĩa đen, kể cả khi tên đó cũng là một từ thông thường.";
+  if(raw.indexOf("không để lại bất kỳ chữ tiếng Nhật") === -1) raw += "\n- Dịch toàn bộ sang ngôn ngữ đích, không để lại bất kỳ chữ tiếng Nhật, Trung, Hàn nào trong bản dịch: kể cả tên nhân vật viết bằng chữ Nhật, Trung, Hàn cũng phải dịch hoặc phiên âm sang ngôn ngữ đích; không dịch một nửa ngôn ngữ đích một nửa chữ Nhật, không để nguyên chữ Nhật, Trung, Hàn trong bản dịch.";
   var src=$("atSrc").value==="auto" ? "ngôn ngữ gốc (tự động nhận diện)" : langName($("atSrc").value);
   return raw.split("{src}").join(src).split("{tgt}").join(langName($("atTgt").value));
 }
@@ -3321,7 +3348,8 @@ function undoWordWrapAll(){
    game (migrateTempCharNamesToGame, gọi cùng lúc với chuyển tiến độ) — không mất tên nào. */
 var CHARNAME_PREFIX = "dtvn_charnames_rpg_v1::";
 var charNamesData = { manual: [], removed: [] };  /* phần chỉnh tay của game đang mở */
-var charNamesList = [];        /* danh sách hiệu lực [{name, auto, manual}] của game đang mở */
+var charNamesList = [];        /* danh sách hiệu lực [{name, auto, manual}] của game đang mở — CHỈ tên chữ Latin / dạng ngôn ngữ đích, được bảo vệ giữ nguyên */
+var charNamesTranslateList = []; /* tên nhân vật viết bằng chữ Nhật / Trung / Hàn [{name, auto, manual}] — KHÔNG bảo vệ, phải được dịch / phiên âm sang ngôn ngữ đích */
 var charNamesVersion = 0;      /* tăng mỗi khi danh sách hiệu lực đổi — để badOf() chấm lại lỗi */
 var charNamesGamePart = null;  /* phần game mà charNamesData đã nạp cho */
 var charNamesSig = "";         /* chữ ký danh sách đã vẽ — tránh vẽ lại panel không cần thiết */
@@ -3421,29 +3449,36 @@ function refreshCharNames(){
     }
     seen[k] = 1; list.push({ name: String(nm), auto: false, manual: true });
   });
+  /* Tách hai nhóm: tên đã ở dạng chữ Latin / ngôn ngữ đích -> danh sách GIỮ NGUYÊN được bảo
+     vệ khi dịch; tên viết bằng chữ Nhật / Trung / Hàn -> danh sách SẼ ĐƯỢC DỊCH, không đưa
+     vào bảo vệ giữ nguyên để model dịch hoặc phiên âm sang ngôn ngữ đích (ví dụ “美琴” phải
+     thành “Mikoto” / “Mỹ Cầm”, không được để nguyên “美琴” trong bản dịch). */
+  var prot = [], trans = [];
+  list.forEach(function(x){ if(hasCJKChars(x.name)) trans.push(x); else prot.push(x); });
   var sig = list.map(function(x){ return x.name + "|" + (x.auto ? 1 : 0) + (x.manual ? 1 : 0); }).join(";;");
   if(sig !== charNamesSig){
-    charNamesList = list;
+    charNamesList = prot;
+    charNamesTranslateList = trans;
     charNamesVersion++;
     charNamesSig = sig;
     renderCharNamePanel();
   }
 }
 function refreshCharNamesForce(){ charNamesSig = "\u0001force"; refreshCharNames(); }
+/* Toàn bộ tên nhân vật đã nhận diện của game đang mở: tên giữ nguyên + tên sẽ được dịch. */
+function allCharNameEntries(){
+  return (typeof charNamesList !== "undefined" ? charNamesList : []).concat(typeof charNamesTranslateList !== "undefined" ? charNamesTranslateList : []);
+}
 /* Vẽ khu “Tên nhân vật không dịch”: mỗi tên là một chip pastel có nút Sửa / Xóa bấm được;
-   hàng chip tự xuống dòng, không tràn ngang trên điện thoại. */
+   hàng chip tự xuống dòng, không tràn ngang trên điện thoại. Tên viết bằng chữ Nhật / Trung /
+   Hàn được vẽ ở NHÓM RIÊNG bên dưới với nhãn “sẽ được dịch” — các tên đó KHÔNG được giữ
+   nguyên, model phải dịch hoặc phiên âm chúng sang ngôn ngữ đích. */
 function renderCharNamePanel(){
   var box = $("cnList"); if(!box) return;
   box.innerHTML = "";
-  if(!charNamesList.length){
-    var d = document.createElement("div");
-    d.className = "cn-empty";
-    d.textContent = "Chưa nhận diện được tên nhân vật nào và chưa có tên nào được thêm tay. Mở Actors.json / file thoại của game để tool tự nhận, hoặc thêm tên ở ô bên dưới.";
-    box.appendChild(d);
-  }
-  charNamesList.forEach(function(item){
+  function renderChip(item, boxEl, isTranslate){
     if(charNameEditing && charNameEditing.toLowerCase() === item.name.toLowerCase()){
-      var wrap = document.createElement("span"); wrap.className = "cn-chip";
+      var wrap = document.createElement("span"); wrap.className = "cn-chip" + (isTranslate ? " translate" : "");
       var inp = document.createElement("input");
       inp.type = "text"; inp.value = item.name; inp.className = "cn-edit-input";
       inp.setAttribute("aria-label", "Sửa tên nhân vật");
@@ -3453,12 +3488,16 @@ function renderCharNamePanel(){
       var cancel = document.createElement("button"); cancel.type = "button"; cancel.textContent = "Hủy";
       cancel.addEventListener("click", function(){ charNameEditing = null; renderCharNamePanel(); });
       wrap.appendChild(inp); wrap.appendChild(save); wrap.appendChild(cancel);
-      box.appendChild(wrap);
+      boxEl.appendChild(wrap);
       return;
     }
-    var chip = document.createElement("span"); chip.className = "cn-chip";
+    var chip = document.createElement("span"); chip.className = "cn-chip" + (isTranslate ? " translate" : "");
     var nm = document.createElement("span"); nm.className = "cn-name"; nm.textContent = item.name;
     chip.appendChild(nm);
+    if(isTranslate){
+      var tt = document.createElement("span"); tt.className = "cn-trans"; tt.textContent = "sẽ được dịch";
+      chip.appendChild(tt);
+    }
     if(item.auto && !item.manual){
       var tg = document.createElement("span"); tg.className = "cn-auto"; tg.textContent = "tự nhận";
       chip.appendChild(tg);
@@ -3470,8 +3509,26 @@ function renderCharNamePanel(){
     db.setAttribute("aria-label", "Xóa tên " + item.name);
     db.addEventListener("click", function(){ deleteCharName(item.name); });
     chip.appendChild(eb); chip.appendChild(db);
-    box.appendChild(chip);
-  });
+    boxEl.appendChild(chip);
+  }
+  if(!charNamesList.length && !charNamesTranslateList.length){
+    var d = document.createElement("div");
+    d.className = "cn-empty";
+    d.textContent = "Chưa nhận diện được tên nhân vật nào và chưa có tên nào được thêm tay. Mở Actors.json / file thoại của game để tool tự nhận, hoặc thêm tên ở ô bên dưới.";
+    box.appendChild(d);
+  } else if(!charNamesList.length){
+    var d2 = document.createElement("div");
+    d2.className = "cn-empty";
+    d2.textContent = "Chưa có tên chữ Latin nào để giữ nguyên — các tên chữ Nhật / Trung / Hàn của game này nằm ở nhóm “sẽ được dịch” bên dưới.";
+    box.appendChild(d2);
+  }
+  charNamesList.forEach(function(item){ renderChip(item, box, false); });
+  var tWrap = $("cnTransWrap"), tBox = $("cnListTranslate");
+  if(tWrap && tBox){
+    tBox.innerHTML = "";
+    tWrap.style.display = charNamesTranslateList.length ? "" : "none";
+    charNamesTranslateList.forEach(function(item){ renderChip(item, tBox, true); });
+  }
   var note = $("cnNote");
   if(note) note.textContent = charNameNoteMsg;
 }
@@ -3485,13 +3542,21 @@ function addCharNameByHand(raw){
   if(nm.length < 2){ toast("Tên nhân vật cần có ít nhất 2 ký tự để tool bảo vệ và kiểm chứng chính xác."); return false; }
   if(looksLikeFile(nm)){ toast("Tên này giống tên file hình/nhạc nên tool không thêm vào danh sách tên nhân vật."); return false; }
   var k = nm.toLowerCase();
-  if(charNamesList.some(function(x){ return x.name.toLowerCase() === k; })){
-    toast("Tên “" + nm + "” đã có trong danh sách không dịch rồi.");
+  if(allCharNameEntries().some(function(x){ return x.name.toLowerCase() === k; })){
+    toast("Tên “" + nm + "” đã có trong danh sách tên nhân vật rồi.");
     return false;
   }
   charNamesData.removed = charNamesData.removed.filter(function(x){ return String(x).toLowerCase() !== k; });
   if(!charNamesData.manual.some(function(x){ return String(x).toLowerCase() === k; })) charNamesData.manual.push(nm);
   saveCharNamesData();
+  if(hasCJKChars(nm)){
+    charNameNoteMsg = "Đã thêm tên “" + nm + "” — tên này viết bằng chữ Nhật / Trung / Hàn nên tool KHÔNG giữ nguyên: khi dịch, tên sẽ được dịch hoặc phiên âm sang ngôn ngữ đích.";
+    refreshCharNamesForce();
+    renderCharNamePanel();
+    renderAll();
+    toast("Đã thêm tên nhân vật “" + nm + "” vào nhóm tên sẽ được dịch (tên chữ Nhật / Trung / Hàn không được giữ nguyên).");
+    return true;
+  }
   charNameNoteMsg = "Đã thêm tên “" + nm + "” — tên này sẽ được giữ nguyên trong mọi bản dịch của game này.";
   refreshCharNamesForce();
   renderCharNamePanel();
@@ -3504,7 +3569,7 @@ function addCharNameByHand(raw){
 function deleteCharName(name){
   var k = String(name).toLowerCase();
   var item = null;
-  charNamesList.forEach(function(x){ if(x.name.toLowerCase() === k) item = x; });
+  allCharNameEntries().forEach(function(x){ if(x.name.toLowerCase() === k) item = x; });
   charNamesData.manual = charNamesData.manual.filter(function(x){ return String(x).toLowerCase() !== k; });
   if(item && item.auto && !charNamesData.removed.some(function(x){ return String(x).toLowerCase() === k; })){
     charNamesData.removed.push(item.name);
@@ -3523,12 +3588,12 @@ function editCharName(oldName, newRaw){
   var nm = normalizeNewCharName(newRaw);
   if(!nm || nm.length < 2){ toast("Tên mới chưa hợp lệ — tên nhân vật cần có ít nhất 2 ký tự."); return false; }
   var ok = String(oldName).toLowerCase(), nk = nm.toLowerCase();
-  if(nk !== ok && charNamesList.some(function(x){ return x.name.toLowerCase() === nk; })){
+  if(nk !== ok && allCharNameEntries().some(function(x){ return x.name.toLowerCase() === nk; })){
     toast("Tên “" + nm + "” đã có trong danh sách rồi.");
     return false;
   }
   var item = null;
-  charNamesList.forEach(function(x){ if(x.name.toLowerCase() === ok) item = x; });
+  allCharNameEntries().forEach(function(x){ if(x.name.toLowerCase() === ok) item = x; });
   charNamesData.manual = charNamesData.manual.filter(function(x){ return String(x).toLowerCase() !== ok; });
   if(item && item.auto && nk !== ok && !charNamesData.removed.some(function(x){ return String(x).toLowerCase() === ok; })){
     charNamesData.removed.push(item.name);
@@ -3537,7 +3602,9 @@ function editCharName(oldName, newRaw){
   if(!charNamesData.manual.some(function(x){ return String(x).toLowerCase() === nk; })) charNamesData.manual.push(nm);
   saveCharNamesData();
   charNameEditing = null;
-  charNameNoteMsg = "Đã sửa tên nhân vật thành “" + nm + "” — tên mới sẽ được giữ nguyên khi dịch game này.";
+  charNameNoteMsg = hasCJKChars(nm)
+    ? "Đã sửa tên nhân vật thành “" + nm + "” — tên mới viết bằng chữ Nhật / Trung / Hàn nên sẽ được dịch hoặc phiên âm sang ngôn ngữ đích, không giữ nguyên."
+    : "Đã sửa tên nhân vật thành “" + nm + "” — tên mới sẽ được giữ nguyên khi dịch game này.";
   refreshCharNamesForce();
   renderCharNamePanel();
   renderAll();
@@ -3547,8 +3614,8 @@ function editCharName(oldName, newRaw){
 /* Xóa tất cả tên khỏi danh sách của game đang mở (tên tự nhận được ghi vào danh sách đã xóa
    để không tự hiện lại ở game này; mở game khác thì danh sách của game đó không bị đụng). */
 function clearAllCharNames(){
-  if(!charNamesList.length){ toast("Danh sách tên nhân vật của game này đang trống rồi."); return; }
-  charNamesList.forEach(function(x){
+  if(!allCharNameEntries().length){ toast("Danh sách tên nhân vật của game này đang trống rồi."); return; }
+  allCharNameEntries().forEach(function(x){
     if(x.auto && !charNamesData.removed.some(function(r){ return String(r).toLowerCase() === x.name.toLowerCase(); })){
       charNamesData.removed.push(x.name);
     }
@@ -3796,10 +3863,74 @@ function translateGemini(text){
   }
   return attempt();
 }
-function translateProtected(provider, origText){
+function translateProtectedOnce(provider, origText){
   var pr=protectText(origText);
   var p = provider==="google" ? translateGoogle(pr.text) : provider==="index" ? translateIndex(pr.text) : translateGemini(pr.text);
   return p.then(function(out){ return restoreAndRepair(out, pr.codes, origText); });
+}
+/* Dịch lại MỘT dòng đúng 1 lần với prompt MẠNH HƠN (yêu cầu dịch toàn bộ sang ngôn ngữ đích,
+   không để lại chữ Nhật / Trung / Hàn) — chỉ áp dụng cho Index Translate và Gemini vì Google
+   không dùng prompt; với Google thì lần dịch lại này là một lần gọi Google bình thường.
+   Prompt mạnh được cài qua promptOverrideText và gỡ ngay sau khi lời gọi được tạo, vì
+   translateIndex / translateGeminiOnce đọc prompt đồng bộ ngay lúc tạo lời gọi. */
+function translateLineStrongOnce(provider, origText){
+  if(provider === "google") return translateProtectedOnce(provider, origText);
+  promptOverrideText = strongFullTranslationPrompt();
+  var p;
+  try{ p = translateProtectedOnce(provider, origText); }
+  finally{ promptOverrideText = null; }
+  return p;
+}
+/* Sau khi dịch (mọi nhà cung cấp): nếu ngôn ngữ đích là tiếng Việt mà bản dịch VẪN còn chữ
+   Nhật / Trung / Hàn (dịch nửa vời một nửa Việt một nửa Nhật), tool tự dịch lại dòng đó ĐÚNG
+   1 lần với prompt mạnh hơn. Nếu lần dịch lại vẫn còn chữ Nhật / Trung / Hàn thì giữ nguyên
+   kết quả đó — detectBadTran() sẽ gắn cờ Dịch lỗi với lý do “Còn chữ tiếng Nhật chưa dịch:
+   <chữ còn lại>” để anh dịch lại tiếp bằng nút “Dịch lại dòng này”. Tool KHÔNG tự xóa chữ
+   Nhật khỏi bản dịch, vì xóa mà không dịch sẽ làm mất nghĩa. */
+async function ensureNoLeftoverCJK(provider, origText, out){
+  if(currentTargetLang() !== "vi") return out;
+  if(!out || !String(out).trim()) return out;
+  var left = leftoverCJKRuns(origText, out);
+  if(!left.length) return out;
+  try{ atLog("Bản dịch còn chữ Nhật / Trung / Hàn chưa dịch (" + left.join(", ") + ") trong dòng “" + String(origText).slice(0, 50) + "” — tự dịch lại dòng này 1 lần với yêu cầu dịch toàn bộ sang " + langName($("atTgt").value) + "."); }catch(e){}
+  try{
+    var out2 = await translateLineStrongOnce(provider, origText);
+    if(out2 && String(out2).trim()){
+      var left2 = leftoverCJKRuns(origText, out2);
+      try{
+        if(left2.length) atLog("Dịch lại vẫn còn chữ chưa dịch (" + left2.join(", ") + ") — giữ bản dịch này và gắn cờ Dịch lỗi với lý do “Còn chữ tiếng Nhật chưa dịch: " + left2.join(", ") + "” để anh dịch lại tiếp.");
+        else atLog("Dịch lại thành công — bản dịch mới đã dịch toàn bộ, không còn chữ Nhật / Trung / Hàn.");
+      }catch(e){}
+      return out2;
+    }
+  }catch(err){
+    try{ atLog("Dịch lại dòng còn chữ chưa dịch bị lỗi (" + (err && err.message ? err.message : String(err)) + ") — giữ bản dịch trước, dòng vẫn bị gắn cờ Dịch lỗi."); }catch(e){}
+  }
+  return out;
+}
+function translateProtected(provider, origText){
+  return translateProtectedOnce(provider, origText).then(function(out){
+    return ensureNoLeftoverCJK(provider, origText, out);
+  });
+}
+/* Áp cơ chế dịch lại 1 lần ở trên cho TỪNG dòng trong kết quả của một lô (Google / AI):
+   dòng nào còn chữ Nhật / Trung / Hàn thì dịch lại đúng dòng đó 1 lần bằng đường dịch đơn
+   với prompt mạnh hơn; dòng dịch lại lỗi / rỗng thì giữ kết quả của lô. */
+async function retryLeftoverCjkLines(provider, origs, results){
+  if(!results || !results.length) return results;
+  if(currentTargetLang() !== "vi") return results;
+  var out = results.slice();
+  for(var i = 0; i < out.length; i++){
+    if(typeof atStop !== "undefined" && atStop) break;
+    var cur = out[i];
+    if(!cur || !String(cur).trim()) continue;
+    if(!leftoverCJKRuns(origs[i], cur).length) continue;
+    try{
+      var again = await ensureNoLeftoverCJK(provider, origs[i], cur);
+      if(again && String(again).trim()) out[i] = again;
+    }catch(e){}
+  }
+  return out;
 }
 /* ----- Dịch HÀNG LOẠT tất cả file -----
    Phạm vi: LUÔN lấy từ allEntries() — toàn bộ file đang mở — và bỏ qua mọi bộ lọc xem
@@ -3931,7 +4062,7 @@ function translateGoogleBatchOnce(texts){
 /* Dịch một lô Google đã bảo vệ tag. Lỗi / 429 / không tách được kết quả -> tự chia đôi lô và thử lại;
    lô còn 1 dòng thì quay về cách dịch từng dòng đã kiểm chứng (3 cách gọi, mỗi cách thử 2 lần).
    Trả về mảng cùng độ dài: chuỗi đã khôi phục tag, hoặc null cho dòng lỗi thật sự. */
-async function googleChunkTranslate(items){
+async function googleChunkTranslate(items, inner){
   if(!items.length) return [];
   if(atStop) return items.map(function(){ return null; });
   var totalChars = 0;
@@ -3945,7 +4076,11 @@ async function googleChunkTranslate(items){
       rawOuts = await translateGoogleBatchOnce(items.map(function(it){ return it.prot; }));
       if(!rawOuts || rawOuts.length !== items.length) throw new Error("Google trả " + (rawOuts ? rawOuts.length : 0) + "/" + items.length + " dòng cho lô.");
     }
-    return rawOuts.map(function(o, i){ return restoreAndRepair(o, items[i].codes, items[i].orig); });
+    var mapped = rawOuts.map(function(o, i){ return restoreAndRepair(o, items[i].codes, items[i].orig); });
+    /* Chỉ lần gọi ngoài cùng mới chạy vòng dịch lại chữ Nhật/Trung/Hàn còn sót (đúng 1 lần
+       mỗi dòng) — các lần gọi đệ quy chia nhỏ lô truyền inner=true để không dịch lại trùng. */
+    if(!inner) mapped = await retryLeftoverCjkLines("google", items.map(function(it){ return it.orig; }), mapped);
+    return mapped;
   }catch(err){
     if(items.length === 1){
       atLog("Dịch hàng loạt: 1 dòng lỗi sau mọi cách thử — " + (err && err.message ? err.message : String(err)));
@@ -3955,10 +4090,12 @@ async function googleChunkTranslate(items){
     atLog("Dịch hàng loạt: lô " + items.length + " dòng lỗi (" + (err && err.message ? err.message : String(err)) + ")" + (is429 ? " — gặp 429, chờ 3 giây rồi chia nhỏ lô và dịch lại từng phần." : " — chia nhỏ lô và dịch lại từng phần."));
     await googleWait(is429 ? 3000 : 800);
     var mid = Math.ceil(items.length / 2);
-    var left = await googleChunkTranslate(items.slice(0, mid));
+    var left = await googleChunkTranslate(items.slice(0, mid), true);
     await googleWait(is429 ? 1500 : 400);
-    var right = await googleChunkTranslate(items.slice(mid));
-    return left.concat(right);
+    var right = await googleChunkTranslate(items.slice(mid), true);
+    var joinedRes = left.concat(right);
+    if(!inner) joinedRes = await retryLeftoverCjkLines("google", items.map(function(it){ return it.orig; }), joinedRes);
+    return joinedRes;
   }
 }
 /* Lô cho Index Translate / Gemini: gửi nhiều dòng trong một lần gọi, mỗi dòng gắn mã ⟦LINE_n⟧
@@ -4024,15 +4161,21 @@ async function aiChunkTranslate(provider, chunk){
     }
     return out;
   }
+  /* Kết quả của lô: dòng nào còn chữ Nhật / Trung / Hàn chưa dịch (đích là tiếng Việt) thì
+     tự dịch lại đúng dòng đó 1 lần với prompt mạnh hơn trước khi trả về cho caller. */
+  async function batchWithCjkRetry(){
+    var res = await tryBatchOnce();
+    return await retryLeftoverCjkLines(provider, chunk.map(function(w){ return w.e.orig; }), res);
+  }
   try{
-    return await tryBatchOnce();
+    return await batchWithCjkRetry();
   }catch(err){
     /* Lô gặp 429/quota: chờ 3 giây rồi thử lại ĐÚNG lô đó 1 lần, sau đó mới rơi về dịch tuần tự từng dòng. */
     if(isBatchQuotaErr(err) && !atStop){
       atLog("Dịch hàng loạt: lô AI " + chunk.length + " dòng gặp 429/quota (" + (err && err.message ? err.message : String(err)) + ") — chờ 3 giây rồi thử lại lô này 1 lần.");
       await googleWait(3000);
       if(!atStop){
-        try{ return await tryBatchOnce(); }
+        try{ return await batchWithCjkRetry(); }
         catch(err2){ err = err2; atLog("Dịch hàng loạt: lô AI " + chunk.length + " dòng thử lại sau 429 vẫn lỗi (" + (err2 && err2.message ? err2.message : String(err2)) + ") — chuyển sang dịch tuần tự lô này."); }
       }
     }

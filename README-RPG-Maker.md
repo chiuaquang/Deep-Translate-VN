@@ -32,6 +32,7 @@ Xem `README.md`, các phần:
 - Cảnh cáo khi xuất file
 - Thoại xuống dòng và Word wrap (chỉ bản RPG Maker)
 - Tên nhân vật không dịch (chỉ bản RPG Maker)
+- Tên tiếng Nhật phải dịch hết, không dịch nửa vời (chỉ bản RPG Maker)
 - Dịch sai ngôn ngữ đích
 - Nhận biết tên game theo dự án (chỉ bản RPG Maker)
 
@@ -41,17 +42,29 @@ Bản sao để hoàn tác Word wrap được khóa theo tên game (`gameTitle` 
 
 ## Tên nhân vật không dịch
 
-Tool tự thu thập tên nhân vật từ `Actors.json` (trường `name`), tên người nói trong lệnh 101 (tham số 4), và các mã `\N[n]` trong thoại, hiện trong khu **“Tên nhân vật không dịch”** dưới khung dịch tự động. Anh có thể thêm tên bằng tay, sửa, xóa từng tên, xóa tất cả; danh sách lưu trong trình duyệt, khóa riêng theo tên game.
+Bảo vệ tên nhân vật chỉ áp dụng cho tên đã ở dạng chữ Latin hoặc đã ở dạng ngôn ngữ đích. Tool tự thu thập tên nhân vật từ `Actors.json` (trường `name`), tên người nói trong lệnh 101 (tham số 4), và các mã `\N[n]` trong thoại, hiện trong khu **“Tên nhân vật không dịch”** dưới khung dịch tự động. Anh có thể thêm tên bằng tay, sửa, xóa từng tên, xóa tất cả; danh sách lưu trong trình duyệt, khóa riêng theo tên game.
 
 Khi dịch bằng Google, Index hay Gemini, tên trong danh sách được thay bằng mã giữ chỗ riêng trước khi gửi cho model và khôi phục nguyên vẹn sau khi dịch, nên tên không bị dịch thành nghĩa đen — ví dụ “Sakura” không thành “hoa anh đào” — và không bị mất. Sau dịch, tool tự chèn lại tên còn thiếu vào đúng vị trí; nếu vẫn thiếu thì gắn cờ Dịch lỗi với lý do **“Thiếu tên nhân vật: \<tên\>”**.
 
+Tên viết bằng chữ Nhật / Trung / Hàn, ví dụ “美琴”, “村長”, **không** nằm trong danh sách giữ nguyên mà được tách sang nhóm riêng **“Tên sẽ được dịch”** trong cùng khu đó, có nhãn “sẽ được dịch” và chip màu riêng, để gửi cho model dịch hoặc phiên âm sang ngôn ngữ đích — xem mục dưới.
+
 - Lưu tiến độ 7 ngày
+
+## Tên tiếng Nhật phải dịch hết, không dịch nửa vời
+
+Prompt mặc định và prompt ép gửi cho Index Translate và Gemini (không dùng cho Google) có thêm ý: dịch toàn bộ sang ngôn ngữ đích, không để lại bất kỳ chữ tiếng Nhật / Trung / Hàn nào trong bản dịch, kể cả tên nhân vật tiếng Nhật cũng phải dịch hoặc phiên âm sang ngôn ngữ đích, không dịch một nửa Việt một nửa Nhật.
+
+Sau khi dịch bằng Index, Gemini hay Google — từng dòng, theo Batch, dịch hàng loạt, dịch lại dòng lỗi — nếu bản dịch còn chữ Nhật / Trung / Hàn mà đích là tiếng Việt, tool tự dịch lại dòng đó đúng một lần với prompt mạnh hơn, yêu cầu dịch toàn bộ; nếu sau lần dịch lại vẫn còn sót thì giữ cờ Dịch lỗi với lý do **“Còn chữ tiếng Nhật chưa dịch: \<chữ còn lại\>”** (ví dụ “錢湯”) để dịch lại tiếp, và tool không bao giờ tự xóa chữ Nhật khỏi bản dịch mà không dịch.
+
+Ví dụ các dòng từng bị dịch nửa vời: `MapInfos.json` “錢湯内装” → “Nội thất錢湯”, `System.json` switches “美琴EV1” → “美琴EV1” (tên “美琴” không dịch gì cả), “錢湯終了” → “錢湯 kết thúc”, “村長錢湯登場” → “村長錢湯 xuất hiện”, `Tilesets.json` “錢湯内装” → “Nội thất錢湯” — tất cả đều bị gắn cờ vì còn chữ Nhật chưa dịch. “マッサージ終了” dịch thành “Massage kết thúc” vẫn bị tính là chưa dịch đúng, còn “Mát-xa kết thúc” thì không. Tên phiên âm đúng như “Mikoto” (từ “美琴”, vẫn giữ “EV1”) không bị gắn cờ oan.
 
 ## Dịch sai ngôn ngữ đích
 
 Khi ngôn ngữ đích đang chọn là tiếng Việt, một dòng đã dịch được tính là Dịch lỗi với lý do **“Dịch sai ngôn ngữ đích: \<từ\>”** nếu bản dịch chứa một từ ngoại lai không phải tiếng Việt sau khi đã bỏ mã game, mã giữ chỗ và tên nhân vật đã bảo vệ — ví dụ từ tiếng Đức như `Physikal`, `Effekt`, phiên âm romaji như `Butsuri`, `Efekuto`, mẫu chữ tiếng Việt không có (`ff`, `ck`, `sch`, `kt`, `pf`, phụ âm đôi, `f`/`j`/`w`/`z`, `ph` + phụ âm, `k` ở cuối từ), hoặc ký tự tiếng Nhật / Trung / Hàn còn nguyên trong bản dịch.
 
 Ví dụ: `Animations.json` “打撃/物理” dịch thành “Đòn đánh/Physikal” (đúng phải là “Vật lý”) và “打撃/エフェクト” dịch thành “Đòn đánh/Effekt” (đúng phải là “Hiệu ứng”) đều bị gắn cờ Dịch lỗi và dịch lại được bằng nút **Dịch lại dòng này** / **Dịch lại tất cả dòng Dịch lỗi**. Tên riêng giữ nguyên như “Yuuto Makabe”, tên nhân vật đã bảo vệ, và thuật ngữ game quen thuộc như HP, MP, Save, Load thì không bị tính là sai.
+
+Chữ Nhật / Trung / Hàn còn nguyên trong bản dịch có lý do riêng: **“Còn chữ tiếng Nhật chưa dịch: \<chữ còn lại\>”** — xem mục “Tên tiếng Nhật phải dịch hết, không dịch nửa vời” ở trên.
 
 ## Xuất / Nhập
 
